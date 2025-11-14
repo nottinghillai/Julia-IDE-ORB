@@ -5,7 +5,7 @@ fn main() {
 
         let mut res = winresource::WindowsResource::new();
         res.set_manifest_file("manifest.xml");
-        res.set_icon("app-icon.ico");
+        res.set_icon("julia-icon.ico");
 
         if let Err(e) = res.compile() {
             eprintln!("{}", e);

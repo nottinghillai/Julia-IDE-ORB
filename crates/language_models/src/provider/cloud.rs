@@ -128,7 +128,7 @@ impl State {
                     anyhow::Ok(())
                 })
                 .await
-                .context("failed to fetch Zed models")
+                .context("failed to fetch Julia models")
                 .log_err();
             }),
             _settings_subscription: cx.observe_global::<SettingsStore>(|_, cx| {
@@ -485,7 +485,7 @@ struct ApiError {
     headers: HeaderMap<HeaderValue>,
 }
 
-/// Represents error responses from Zed's cloud API.
+/// Represents error responses from Julia's cloud API.
 ///
 /// Example JSON for an upstream HTTP error:
 /// ```json
@@ -1034,26 +1034,26 @@ impl RenderOnce for ZedAiConfiguration {
         });
         let subscription_text = match (self.plan, self.subscription_period) {
             (Some(Plan::V1(PlanV1::ZedPro) | Plan::V2(PlanV2::ZedPro)), Some(_)) => {
-                "You have access to Zed's hosted models through your Pro subscription."
+                "You have access to Julia's hosted models through your Pro subscription."
             }
             (Some(Plan::V1(PlanV1::ZedProTrial) | Plan::V2(PlanV2::ZedProTrial)), Some(_)) => {
-                "You have access to Zed's hosted models through your Pro trial."
+                "You have access to Julia's hosted models through your Pro trial."
             }
             (Some(Plan::V1(PlanV1::ZedFree)), Some(_)) => {
-                "You have basic access to Zed's hosted models through the Free plan."
+                "You have basic access to Julia's hosted models through the Free plan."
             }
             (Some(Plan::V2(PlanV2::ZedFree)), Some(_)) => {
                 if self.eligible_for_trial {
-                    "Subscribe for access to Zed's hosted models. Start with a 14 day free trial."
+                    "Subscribe for access to Julia's hosted models. Start with a 14 day free trial."
                 } else {
-                    "Subscribe for access to Zed's hosted models."
+                    "Subscribe for access to Julia's hosted models."
                 }
             }
             _ => {
                 if self.eligible_for_trial {
-                    "Subscribe for access to Zed's hosted models. Start with a 14 day free trial."
+                    "Subscribe for access to Julia's hosted models. Start with a 14 day free trial."
                 } else {
-                    "Subscribe for access to Zed's hosted models."
+                    "Subscribe for access to Julia's hosted models."
                 }
             }
         };
@@ -1081,9 +1081,9 @@ impl RenderOnce for ZedAiConfiguration {
         if !self.is_connected {
             return v_flex()
                 .gap_2()
-                .child(Label::new("Sign in to have access to Zed's complete agentic experience with hosted models."))
+                .child(Label::new("Sign in to have access to Julia's complete agentic experience with hosted models."))
                 .child(
-                    Button::new("sign_in", "Sign In to use Zed AI")
+                    Button::new("sign_in", "Sign In to use Julia AI")
                         .icon_color(Color::Muted)
                         .icon(IconName::Github)
                         .icon_size(IconSize::Small)
@@ -1208,11 +1208,11 @@ impl Component for ZedAiConfiguration {
                         configuration(true, Some(Plan::V1(PlanV1::ZedFree)), true, false),
                     ),
                     single_example(
-                        "Zed Pro Trial Plan",
+                        "Julia Pro Trial Plan",
                         configuration(true, Some(Plan::V1(PlanV1::ZedProTrial)), true, false),
                     ),
                     single_example(
-                        "Zed Pro Plan",
+                        "Julia Pro Plan",
                         configuration(true, Some(Plan::V1(PlanV1::ZedPro)), true, false),
                     ),
                 ])
@@ -1301,7 +1301,7 @@ mod tests {
             ),
         }
 
-        // Regular 500 error without upstream_http_error should remain ApiInternalServerError for Zed
+        // Regular 500 error without upstream_http_error should remain ApiInternalServerError for Julia
         let error_body = "Regular internal server error";
 
         let api_error = ApiError {

@@ -444,7 +444,7 @@ pub async fn stream_completion(
         .header("Content-Type", "application/json")
         .header("Authorization", format!("Bearer {}", api_key))
         .header("HTTP-Referer", "https://zed.dev")
-        .header("X-Title", "Zed Editor");
+        .header("X-Title", "Julia Editor");
 
     let request = request_builder
         .body(AsyncBody::from(
@@ -537,7 +537,7 @@ pub async fn list_models(
         .header("Accept", "application/json")
         .header("Authorization", format!("Bearer {}", api_key))
         .header("HTTP-Referer", "https://zed.dev")
-        .header("X-Title", "Zed Editor");
+        .header("X-Title", "Julia Editor");
 
     let request = request_builder
         .body(AsyncBody::default())

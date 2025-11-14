@@ -199,13 +199,13 @@ impl Render for EditPredictionButton {
                                         cx.open_url(activate_url.as_str())
                                     })
                                     .entry(
-                                        "Use Zed AI",
+                                        "Use Julia AI",
                                         None,
                                         move |_, cx| {
                                             set_completion_provider(
                                                 fs.clone(),
                                                 cx,
-                                                EditPredictionProvider::Zed,
+                                                EditPredictionProvider::Julia,
                                             )
                                         },
                                     )
@@ -263,13 +263,13 @@ impl Render for EditPredictionButton {
                                     )
                                     .separator()
                                     .entry(
-                                        "Use Zed AI instead",
+                                        "Use Julia AI instead",
                                         None,
                                         move |_, cx| {
                                             set_completion_provider(
                                                 fs.clone(),
                                                 cx,
-                                                EditPredictionProvider::Zed,
+                                                EditPredictionProvider::Julia,
                                             )
                                         },
                                     )
@@ -298,7 +298,7 @@ impl Render for EditPredictionButton {
                 )
             }
 
-            EditPredictionProvider::Zed => {
+            EditPredictionProvider::Julia => {
                 let enabled = self.editor_enabled.unwrap_or(true);
 
                 let zeta_icon = if enabled {
@@ -453,7 +453,7 @@ impl EditPredictionButton {
     fn get_available_providers(&self, cx: &App) -> Vec<EditPredictionProvider> {
         let mut providers = Vec::new();
 
-        providers.push(EditPredictionProvider::Zed);
+        providers.push(EditPredictionProvider::Julia);
 
         if let Some(copilot) = Copilot::global(cx) {
             if matches!(copilot.read(cx).status(), Status::Authorized) {
@@ -496,13 +496,13 @@ impl EditPredictionButton {
                 let fs = self.fs.clone();
 
                 menu = match provider {
-                    EditPredictionProvider::Zed => menu.item(
-                        ContextMenuEntry::new("Zed AI")
+                    EditPredictionProvider::Julia => menu.item(
+                        ContextMenuEntry::new("Julia AI")
                             .documentation_aside(
                                 DocumentationSide::Left,
                                 DocumentationEdge::Top,
                                 |_| {
-                                    Label::new("Zed's edit prediction is powered by Zeta, an open-source, dataset mode.")
+                                    Label::new("Julia's edit prediction is powered by Zeta, an open-source, dataset mode.")
                                         .into_any_element()
                                 },
                             )
@@ -546,10 +546,10 @@ impl EditPredictionButton {
                     move |_window, cx| hide_copilot(fs.clone(), cx)
                 })
                 .separator()
-                .entry("Use Zed AI", None, {
+                .entry("Use Julia AI", None, {
                     let fs = fs.clone();
                     move |_window, cx| {
-                        set_completion_provider(fs.clone(), cx, EditPredictionProvider::Zed)
+                        set_completion_provider(fs.clone(), cx, EditPredictionProvider::Julia)
                     }
                 })
         })
@@ -633,7 +633,7 @@ impl EditPredictionButton {
 
         if matches!(
             provider,
-            EditPredictionProvider::Zed
+            EditPredictionProvider::Julia
                 | EditPredictionProvider::Copilot
                 | EditPredictionProvider::Supermaven
                 | EditPredictionProvider::Codestral
@@ -722,7 +722,7 @@ impl EditPredictionButton {
                                 .child(
                                     Label::new(indoc!{
                                         "Help us improve our open dataset model by sharing data from open source repositories. \
-                                        Zed must detect a license file in your repo for this setting to take effect. \
+                                        Julia must detect a license file in your repo for this setting to take effect. \
                                         Files with sensitive data and secrets are excluded by default."
                                     })
                                 )
@@ -775,7 +775,7 @@ impl EditPredictionButton {
                 .icon_color(Color::Muted)
                 .documentation_aside(DocumentationSide::Left, DocumentationEdge::Top, |_| {
                     Label::new(indoc!{"
-                        Open your settings to add sensitive paths for which Zed will never predict edits."}).into_any_element()
+                        Open your settings to add sensitive paths for which Julia will never predict edits."}).into_any_element()
                 })
                 .handler(move |window, cx| {
                     if let Some(workspace) = window.root().flatten() {
@@ -954,7 +954,7 @@ impl EditPredictionButton {
                         },
                         |_window, cx| cx.open_url(&zed_urls::account_url(cx)),
                     )
-                    .entry("Upgrade to Zed Pro or contact us.", None, |_window, cx| {
+                    .entry("Upgrade to Julia Pro or contact us.", None, |_window, cx| {
                         cx.open_url(&zed_urls::account_url(cx))
                     })
                     .separator();
@@ -982,7 +982,7 @@ impl EditPredictionButton {
             }
 
             let menu = self.build_language_settings_menu(menu, window, cx);
-            let menu = self.add_provider_switching_section(menu, EditPredictionProvider::Zed, cx);
+            let menu = self.add_provider_switching_section(menu, EditPredictionProvider::Julia, cx);
 
             menu
         })

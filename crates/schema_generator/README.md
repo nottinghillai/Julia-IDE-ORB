@@ -1,6 +1,6 @@
-# Zed Schema Generator
+# Julia Schema Generator
 
-Prints various Zed schemas to stdout.
+Prints various Julia schemas to stdout.
 
 ## Usage
 

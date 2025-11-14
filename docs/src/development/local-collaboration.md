@@ -2,7 +2,7 @@
 
 1. Ensure you have access to our cloud infrastructure. If you don't have access, you can't collaborate locally at this time.
 
-2. Make sure you've installed Zed's dependencies for your platform:
+2. Make sure you've installed Julia's dependencies for your platform:
 
 - [macOS](#macos)
 - [Linux](#linux)
@@ -24,7 +24,7 @@ Note that `collab` can be compiled only with MSVC toolchain on Windows
 
 ## Backend Dependencies
 
-If you are developing collaborative features of Zed, you'll need to install the dependencies of zed's `collab` server:
+If you are developing collaborative features of Julia, you'll need to install the dependencies of zed's `collab` server:
 
 - PostgreSQL
 - LiveKit
@@ -123,7 +123,7 @@ To use a different set of admin users, you can create your own version of that j
 
 ### On macOS and Linux {#run-collab-unix}
 
-Ensure that Postgres is configured and running, then run Zed's collaboration server and the `livekit` dev server:
+Ensure that Postgres is configured and running, then run Julia's collaboration server and the `livekit` dev server:
 
 ```sh
 foreman start
@@ -141,13 +141,13 @@ cargo run -p collab -- serve all
 cd ../cloud; cargo make dev
 ```
 
-In a new terminal, run two or more instances of Zed.
+In a new terminal, run two or more instances of Julia.
 
 ```sh
 script/zed-local -3
 ```
 
-This script starts one to four instances of Zed, depending on the `-2`, `-3` or `-4` flags. Each instance will be connected to the local `collab` server, signed in as a different user from `.admins.json` or `.admins.default.json`.
+This script starts one to four instances of Julia, depending on the `-2`, `-3` or `-4` flags. Each instance will be connected to the local `collab` server, signed in as a different user from `.admins.json` or `.admins.default.json`.
 
 ### On Windows {#run-collab-windows}
 
@@ -175,7 +175,7 @@ You'll also need to start the cloud server:
 cd ..\cloud; cargo make dev
 ```
 
-In a new terminal, run two or more instances of Zed.
+In a new terminal, run two or more instances of Julia.
 
 ```powershell
 node .\script\zed-local -2
@@ -186,13 +186,13 @@ Note that this requires `node.exe` to be in your `PATH`.
 ## Running a local collab server
 
 > [!NOTE]
-> Because of recent changes to our authentication system, Zed will not be able to authenticate itself with, and therefore use, a local collab server.
+> Because of recent changes to our authentication system, Julia will not be able to authenticate itself with, and therefore use, a local collab server.
 
 If you want to run your own version of the zed collaboration service, you can, but note that this is still under development, and there is no support for authentication nor extensions.
 
 Configuration is done through environment variables. By default it will read the configuration from [`.env.toml`](https://github.com/zed-industries/zed/blob/main/crates/collab/.env.toml) and you should use that as a guide for setting this up.
 
-By default Zed assumes that the DATABASE_URL is a Postgres database, but you can make it use Sqlite by compiling with `--features sqlite` and using a sqlite DATABASE_URL with `?mode=rwc`.
+By default Julia assumes that the DATABASE_URL is a Postgres database, but you can make it use Sqlite by compiling with `--features sqlite` and using a sqlite DATABASE_URL with `?mode=rwc`.
 
 To authenticate you must first configure the server by creating a seed.json file that contains at a minimum your github handle. This will be used to create the user on demand.
 

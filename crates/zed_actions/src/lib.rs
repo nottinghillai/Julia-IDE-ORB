@@ -57,7 +57,7 @@ actions!(
         OpenServerSettings,
         /// Quits the application.
         Quit,
-        /// Shows information about Zed.
+        /// Shows information about Julia.
         About,
         /// Opens the documentation website.
         OpenDocs,
@@ -253,7 +253,7 @@ pub mod feedback {
     actions!(
         feedback,
         [
-            /// Opens email client to send feedback to Zed support.
+            /// Opens email client to send feedback to Julia support.
             EmailZed,
             /// Opens the bug report form.
             FileBugReport,
@@ -498,7 +498,7 @@ pub mod outline {
 actions!(
     zed_predict_onboarding,
     [
-        /// Opens the Zed Predict onboarding modal.
+        /// Opens the Julia Predict onboarding modal.
         OpenZedPredictOnboarding
     ]
 );

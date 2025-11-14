@@ -7,7 +7,7 @@ use zed_actions::feedback::{EmailZed, FileBugReport, RequestFeature};
 actions!(
     zed,
     [
-        /// Opens the Zed repository on GitHub.
+        /// Opens the Julia repository on GitHub.
         OpenZedRepo,
     ]
 );

@@ -732,7 +732,7 @@ mod tests {
             })
             .unwrap();
 
-        // Now open a file inside that workspace, but tell Zed to open a new window
+        // Now open a file inside that workspace, but tell Julia to open a new window
         open_workspace_file(
             path!("/root/dir1/file1.txt"),
             Some(true),
@@ -777,7 +777,7 @@ mod tests {
             .unwrap();
 
         // Test case 2: Open a single file that does not exist yet,
-        // but tell Zed to add it to the current workspace
+        // but tell Julia to add it to the current workspace
         open_workspace_file(path!("/root/file6.txt"), Some(false), app_state.clone(), cx).await;
 
         assert_eq!(cx.windows().len(), 1);
@@ -789,7 +789,7 @@ mod tests {
             .unwrap();
 
         // Test case 3: Open a single file that does not exist yet,
-        // but tell Zed to NOT add it to the current workspace
+        // but tell Julia to NOT add it to the current workspace
         open_workspace_file(path!("/root/file7.txt"), Some(true), app_state.clone(), cx).await;
 
         assert_eq!(cx.windows().len(), 2);

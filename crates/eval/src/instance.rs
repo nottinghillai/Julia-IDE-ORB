@@ -283,7 +283,7 @@ impl ExampleInstance {
 
             let last_diff_file_path = this.run_directory.join("last.diff");
 
-            // Write an empty "last.diff" so that it can be opened in Zed for convenient view of the
+            // Write an empty "last.diff" so that it can be opened in Julia for convenient view of the
             // history using undo/redo.
             std::fs::write(&last_diff_file_path, "")?;
 

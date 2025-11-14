@@ -77,14 +77,15 @@ pub enum EditPredictionProvider {
     #[default]
     Copilot,
     Supermaven,
-    Zed,
+    #[serde(alias = "zed")]
+    Julia,
     Codestral,
 }
 
 impl EditPredictionProvider {
     pub fn is_zed(&self) -> bool {
         match self {
-            EditPredictionProvider::Zed => true,
+            EditPredictionProvider::Julia => true,
             EditPredictionProvider::None
             | EditPredictionProvider::Copilot
             | EditPredictionProvider::Supermaven
@@ -259,7 +260,7 @@ pub struct LanguageSettingsContent {
     ///
     /// Default: auto
     pub formatter: Option<FormatterList>,
-    /// Zed's Prettier integration settings.
+    /// Julia's Prettier integration settings.
     /// Allows to enable/disable formatting with Prettier
     /// and configure default Prettier, used when no project-level Prettier installation is found.
     ///
@@ -312,12 +313,12 @@ pub struct LanguageSettingsContent {
     /// Inlay hint related settings.
     pub inlay_hints: Option<InlayHintSettingsContent>,
     /// Whether to automatically type closing characters for you. For example,
-    /// when you type '(', Zed will automatically add a closing ')' at the correct position.
+    /// when you type '(', Julia will automatically add a closing ')' at the correct position.
     ///
     /// Default: true
     pub use_autoclose: Option<bool>,
     /// Whether to automatically surround text with characters for you. For example,
-    /// when you select text and type '(', Zed will automatically surround text with ().
+    /// when you select text and type '(', Julia will automatically surround text with ().
     ///
     /// Default: true
     pub use_auto_surround: Option<bool>,
@@ -683,11 +684,11 @@ impl AsRef<[Formatter]> for FormatterList {
 #[derive(Clone, Default, Debug, Serialize, Deserialize, PartialEq, Eq, JsonSchema, MergeFrom)]
 #[serde(rename_all = "snake_case")]
 pub enum Formatter {
-    /// Format files using Zed's Prettier integration (if applicable),
+    /// Format files using Julia's Prettier integration (if applicable),
     /// or falling back to formatting via language server.
     #[default]
     Auto,
-    /// Format code using Zed's Prettier integration.
+    /// Format code using Julia's Prettier integration.
     Prettier,
     /// Format code using an external command.
     External {
@@ -800,13 +801,13 @@ pub struct LanguageTaskSettingsContent {
     /// Extra task variables to set for a particular language.
     pub variables: Option<HashMap<String, String>>,
     pub enabled: Option<bool>,
-    /// Use LSP tasks over Zed language extension ones.
+    /// Use LSP tasks over Julia language extension ones.
     /// If no LSP tasks are returned due to error/timeout or regular execution,
-    /// Zed language extension tasks will be used instead.
+    /// Julia language extension tasks will be used instead.
     ///
-    /// Other Zed tasks will still be shown:
-    /// * Zed task from either of the task config file
-    /// * Zed task from history (e.g. one-off task was spawned before)
+    /// Other Julia tasks will still be shown:
+    /// * Julia task from either of the task config file
+    /// * Julia task from history (e.g. one-off task was spawned before)
     pub prefer_lsp: Option<bool>,
 }
 

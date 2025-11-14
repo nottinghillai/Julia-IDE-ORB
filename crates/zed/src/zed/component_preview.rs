@@ -1,6 +1,6 @@
 //! # Component Preview
 //!
-//! A view for exploring Zed components.
+//! A view for exploring Julia components.
 
 mod persistence;
 

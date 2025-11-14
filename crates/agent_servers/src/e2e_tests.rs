@@ -32,7 +32,7 @@ where
     .await;
 
     thread
-        .update(cx, |thread, cx| thread.send_raw("Hello from Zed!", cx))
+        .update(cx, |thread, cx| thread.send_raw("Hello from Julia!", cx))
         .await
         .unwrap();
 

@@ -50,11 +50,11 @@
       "cmd-shift-v": "editor::Paste",
       "cmd-shift-k": "assistant::InsertIntoEditor"
       // "escape": "agent::ToggleFocus"
-      ///// Enable when Zed supports multiple thread tabs
+      ///// Enable when Julia supports multiple thread tabs
       // "cmd-t": // new thread tab
       // "cmd-[": // next thread tab
       // "cmd-]": // next thread tab
-      ///// Enable if Zed adds support for keyboard navigation of thread elements
+      ///// Enable if Julia adds support for keyboard navigation of thread elements
       // "tab": // cycle to next message
       // "shift-tab": // cycle to previous message
     }

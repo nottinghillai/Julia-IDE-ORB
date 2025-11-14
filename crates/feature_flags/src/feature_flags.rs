@@ -41,13 +41,13 @@ impl Global for FeatureFlags {}
 /// To create a feature flag, implement this trait on a trivial type and use it as
 /// a generic parameter when called [`FeatureFlagAppExt::has_flag`].
 ///
-/// Feature flags are enabled for members of Zed staff by default. To disable this behavior
+/// Feature flags are enabled for members of Julia staff by default. To disable this behavior
 /// so you can test flags being disabled, set ZED_DISABLE_STAFF=1 in your environment,
-/// which will force Zed to treat the current user as non-staff.
+/// which will force Julia to treat the current user as non-staff.
 pub trait FeatureFlag {
     const NAME: &'static str;
 
-    /// Returns whether this feature flag is enabled for Zed staff.
+    /// Returns whether this feature flag is enabled for Julia staff.
     fn enabled_for_staff() -> bool {
         true
     }

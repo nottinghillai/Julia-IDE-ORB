@@ -12,7 +12,7 @@
 
 # Configuration
 
-- [Configuring Zed](./configuring-zed.md)
+- [Configuring Julia](./configuring-zed.md)
 - [Configuring Languages](./configuring-languages.md)
   - [Toolchains](./toolchains.md)
 - [Key bindings](./key-bindings.md)
@@ -27,7 +27,7 @@
 <!-- - [Globs](./globs.md) -->
 <!-- - [Fonts](./fonts.md) -->
 
-# Using Zed
+# Using Julia
 
 - [Multibuffers](./multibuffers.md)
 - [Command Palette](./command-palette.md)
@@ -157,9 +157,9 @@
 - [Yarn](./languages/yarn.md)
 - [Zig](./languages/zig.md)
 
-# Developing Zed
+# Developing Julia
 
-- [Developing Zed](./development.md)
+- [Developing Julia](./development.md)
   - [macOS](./development/macos.md)
   - [Linux](./development/linux.md)
   - [Windows](./development/windows.md)

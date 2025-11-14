@@ -9,6 +9,7 @@ use rust_embed::RustEmbed;
 #[include = "fonts/**/*"]
 #[include = "icons/**/*"]
 #[include = "images/**/*"]
+#[include = "photos/**/*"]
 #[include = "themes/**/*"]
 #[include = "sounds/**/*"]
 #[include = "*.md"]

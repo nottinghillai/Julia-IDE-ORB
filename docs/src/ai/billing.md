@@ -10,11 +10,11 @@ Most of the page embeds information from our invoicing/metering partner, Orb (we
 
 ## Billing Cycles {#billing-cycles}
 
-Zed is billed on a monthly basis based on the date you initially subscribe. You'll receive _at least_ one invoice from Zed each month you're subscribed to Zed Pro, and more than one if you use more than $10 in incremental token spend within the month.
+Julia is billed on a monthly basis based on the date you initially subscribe. You'll receive _at least_ one invoice from Julia each month you're subscribed to Julia Pro, and more than one if you use more than $10 in incremental token spend within the month.
 
 ## Threshold Billing {#threshold-billing}
 
-Zed utilizes threshold billing to ensure timely collection of owed monies and prevent abuse. Every time your usage of Zed's hosted models crosses a $10 spend threshold, a new invoice is generated, and the threshold resets to $0.
+Julia utilizes threshold billing to ensure timely collection of owed monies and prevent abuse. Every time your usage of Julia's hosted models crosses a $10 spend threshold, a new invoice is generated, and the threshold resets to $0.
 
 For example,
 
@@ -24,7 +24,7 @@ For example,
 
 ## Payment Failures {#payment-failures}
 
-If payment of an invoice fails, Zed will block usage of our hosted models until the payment is complete. Email [billing-support@zed.dev](mailto:billing-support@zed.dev) for assistance.
+If payment of an invoice fails, Julia will block usage of our hosted models until the payment is complete. Email [billing-support@zed.dev](mailto:billing-support@zed.dev) for assistance.
 
 ## Invoice History {#invoice-history}
 
@@ -42,7 +42,7 @@ Please note that changes to billing information will **only** affect future invo
 
 ## Sales Tax {#sales-tax}
 
-Zed partners with [Sphere](https://www.getsphere.com/) to calculate indirect tax rate for invoices, based on customer location and the product being sold. Tax is listed as a separate line item on invoices, based preferentially on your billing address, followed by the card issue country known to Stripe.
+Julia partners with [Sphere](https://www.getsphere.com/) to calculate indirect tax rate for invoices, based on customer location and the product being sold. Tax is listed as a separate line item on invoices, based preferentially on your billing address, followed by the card issue country known to Stripe.
 
 If you have a VAT/GST ID, you can add it at during checkout. Check the box that denotes you as a business.
 

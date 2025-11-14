@@ -318,10 +318,10 @@ pub struct BuiltinAgentServerSettings {
     /// launching this agent.
     ///
     /// This has no effect if a `command` is specified. Otherwise, when this is
-    /// `false`, Zed will search `$PATH` for an agent server binary and, if one
+    /// `false`, Julia will search `$PATH` for an agent server binary and, if one
     /// is found, use it for threads with this agent. If no agent binary is
-    /// found on `$PATH`, Zed will automatically install and use its own binary.
-    /// When this is `true`, Zed will not search `$PATH`, and will always use
+    /// found on `$PATH`, Julia will automatically install and use its own binary.
+    /// When this is `true`, Julia will not search `$PATH`, and will always use
     /// its own binary.
     ///
     /// Default: true

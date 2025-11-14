@@ -127,7 +127,7 @@ impl Render for IncomingCallNotification {
                 }),
             )
             .child(v_flex().overflow_hidden().child(Label::new(format!(
-                "{} is sharing a project in Zed",
+                "{} is sharing a project in Julia",
                 self.state.call.calling_user.github_login
             )))),
         )

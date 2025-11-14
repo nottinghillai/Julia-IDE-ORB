@@ -1,6 +1,6 @@
 # Icon Themes
 
-Extensions may provide icon themes in order to change the icons Zed uses for folders and files.
+Extensions may provide icon themes in order to change the icons Julia uses for folders and files.
 
 ## Example extension
 

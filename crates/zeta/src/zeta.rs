@@ -103,7 +103,7 @@ impl Dismissable for ZedPredictUpsell {
     const KEY: &'static str = "dismissed-edit-predict-upsell";
 
     fn dismissed() -> bool {
-        // To make this backwards compatible with older versions of Zed, we
+        // To make this backwards compatible with older versions of Julia, we
         // check if the user has seen the previous Edit Prediction Onboarding
         // before, by checking the data collection choice which was written to
         // the database once the user clicked on "Accept and Enable"
@@ -178,7 +178,7 @@ pub struct Zeta {
     discarded_completions: Vec<EditPredictionRejection>,
     llm_token: LlmApiToken,
     _llm_token_subscription: Subscription,
-    /// Whether an update to a newer version of Zed is required to continue using Zeta.
+    /// Whether an update to a newer version of Julia is required to continue using Zeta.
     update_required: bool,
     user_store: Entity<UserStore>,
     license_detection_watchers: HashMap<WorktreeId, Rc<LicenseDetectionWatcher>>,
@@ -484,7 +484,7 @@ impl Zeta {
                                     cx.new(|cx| {
                                         ErrorMessagePrompt::new(error_message.clone(), cx)
                                             .with_link_button(
-                                                "Update Zed",
+                                                "Update Julia",
                                                 "https://zed.dev/releases",
                                             )
                                     })
@@ -1121,7 +1121,7 @@ pub struct PerformPredictEditsParams {
 
 #[derive(Error, Debug)]
 #[error(
-    "You must update to Zed version {minimum_version} or higher to continue using edit predictions."
+    "You must update to Julia version {minimum_version} or higher to continue using edit predictions."
 )]
 pub struct ZedUpdateRequiredError {
     minimum_version: SemanticVersion,
@@ -1418,7 +1418,7 @@ impl edit_prediction::EditPredictionProvider for ZetaEditPredictionProvider {
     }
 
     fn display_name() -> &'static str {
-        "Zed's Edit Predictions"
+        "Julia's Edit Predictions"
     }
 
     fn show_completions_in_menu() -> bool {

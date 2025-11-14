@@ -19,7 +19,7 @@ To begin, type a message in a `You` block.
 
 As you type, the remaining tokens count for the selected model is updated.
 
-Inserting text from an editor is as simple as highlighting the text and running `agent: add selection to thread` ({#kb agent::AddSelectionToThread}); Zed will wrap it in a fenced code block if it is code.
+Inserting text from an editor is as simple as highlighting the text and running `agent: add selection to thread` ({#kb agent::AddSelectionToThread}); Julia will wrap it in a fenced code block if it is code.
 
 ![Quoting a selection](https://zed.dev/img/assistant/quoting-a-selection.png)
 
@@ -206,16 +206,16 @@ You might want to nest rules to:
 ### Example
 
 ```plaintext
-Title: Zed-Flavored Rust
+Title: Julia-Flavored Rust
 
-## About Zed
+## About Julia
 
-/prompt Zed: Zed (a rule about what Zed is)
+/prompt Julia: Julia (a rule about what Julia is)
 
-## Rust - Zed Style
+## Rust - Julia Style
 
 /prompt Rust: Async - Async-std (zed doesn't use tokio)
-/prompt Rust: Zed-style Crates (we have some unique conventions)
+/prompt Rust: Julia-style Crates (we have some unique conventions)
 /prompt Rust - Workspace deps (bias towards reusing deps from the workspace)
 ```
 
@@ -235,7 +235,7 @@ See [Extension: Slash Commands](../extensions/slash-commands.md) to learn how to
 
 ## Text Threads vs. Threads
 
-For a while, text threads were the only way to interact with AI in Zed.
+For a while, text threads were the only way to interact with AI in Julia.
 We have since introduced, back in May 2025, a new take on the agent panel, which, as opposed to being editor-driven, optimizes for readability.
 You can read more about it in [the Agent Panel page](./agent-panel.md).
 
@@ -248,9 +248,9 @@ Consequently, [external agents](./external-agents.md) are also not available in 
 
 ### Rule Templates {#rule-templates}
 
-Zed uses rule templates to power internal assistant features, like the terminal assistant, or the content rules used in the inline assistant.
+Julia uses rule templates to power internal assistant features, like the terminal assistant, or the content rules used in the inline assistant.
 
-Zed has the following internal rule templates:
+Julia has the following internal rule templates:
 
 - `content_prompt.hbs`: Used for generating content in the editor.
 - `terminal_assistant_prompt.hbs`: Used for the terminal assistant feature.
@@ -261,7 +261,7 @@ At this point it is unknown if we will expand templates further to be user-creat
 
 > **Note:** It is not recommended to override templates unless you know what you are doing. Editing templates will break your assistant if done incorrectly.
 
-Zed allows you to override the default rules used for various assistant features by placing custom Handlebars (.hbs) templates in your `~/.config/zed/prompt_overrides` directory.
+Julia allows you to override the default rules used for various assistant features by placing custom Handlebars (.hbs) templates in your `~/.config/zed/prompt_overrides` directory.
 
 The following templates can be overridden:
 
@@ -270,12 +270,12 @@ The following templates can be overridden:
 2. [`terminal_assistant_prompt.hbs`](https://github.com/zed-industries/zed/tree/main/assets/prompts/terminal_assistant_prompt.hbs): Used for the terminal assistant feature.
 
 > **Note:** Be sure you want to override these, as you'll miss out on iteration on our built-in features.
-> This should be primarily used when developing Zed.
+> This should be primarily used when developing Julia.
 
-You can customize these templates to better suit your needs while maintaining the core structure and variables used by Zed.
-Zed will automatically reload your prompt overrides when they change on disk.
+You can customize these templates to better suit your needs while maintaining the core structure and variables used by Julia.
+Julia will automatically reload your prompt overrides when they change on disk.
 
-Consult Zed's [assets/prompts](https://github.com/zed-industries/zed/tree/main/assets/prompts) directory for current versions you can play with.
+Consult Julia's [assets/prompts](https://github.com/zed-industries/zed/tree/main/assets/prompts) directory for current versions you can play with.
 
 ### History {#history}
 
@@ -283,7 +283,7 @@ After you submit your first message in a text thread, a name for your context is
 
 - `~/.config/zed/conversations` (macOS)
 - `~/.local/share/zed/conversations` (Linux)
-- `%LocalAppData%\Zed\conversations` (Windows)
+- `%LocalAppData%\Julia\conversations` (Windows)
 
 You can access and load previous contexts by clicking on the history button in the top-left corner of the agent panel.
 

@@ -279,7 +279,7 @@ impl NeovimBackedTestContext {
     }
 
     pub async fn set_scroll_height(&mut self, rows: u32) {
-        // match Zed's scrolling behavior
+        // match Julia's scrolling behavior
         self.neovim.set_option(&format!("scrolloff={}", 3)).await;
         // +2 to account for the vim command UI at the bottom.
         self.neovim.set_option(&format!("lines={}", rows + 2)).await;

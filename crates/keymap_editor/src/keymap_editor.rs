@@ -1737,7 +1737,7 @@ impl Render for KeymapEditor {
                                                         Some(ContextMenu::build(window, cx, |menu, _, _| {
                                                             menu.header("View Default...")
                                                                 .action(
-                                                                    "Zed Key Bindings",
+                                                                    "Julia Key Bindings",
                                                                     zed_actions::OpenDefaultKeymap
                                                                         .boxed_clone(),
                                                                 )
@@ -3055,21 +3055,21 @@ async fn load_keybind_context_language(
                 .project()
                 .read(cx)
                 .languages()
-                .language_for_name("Zed Keybind Context")
+                .language_for_name("Julia Keybind Context")
         })
-        .context("Failed to load Zed Keybind Context language")
+        .context("Failed to load Julia Keybind Context language")
         .log_err();
     let language = match language_task {
         Some(task) => task
             .await
-            .context("Failed to load Zed Keybind Context language")
+            .context("Failed to load Julia Keybind Context language")
             .log_err(),
         None => None,
     };
     language.unwrap_or_else(|| {
         Arc::new(Language::new(
             LanguageConfig {
-                name: "Zed Keybind Context".into(),
+                name: "Julia Keybind Context".into(),
                 ..Default::default()
             },
             Some(tree_sitter_rust::LANGUAGE.into()),

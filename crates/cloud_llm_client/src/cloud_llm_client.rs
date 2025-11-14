@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 use strum::{Display, EnumIter, EnumString};
 use uuid::Uuid;
 
-/// The name of the header used to indicate which version of Zed the client is running.
+/// The name of the header used to indicate which version of Julia the client is running.
 pub const ZED_VERSION_HEADER_NAME: &str = "x-zed-version";
 
 /// The name of the header used to indicate when a request failed due to an
@@ -41,9 +41,9 @@ pub const EDIT_PREDICTIONS_RESOURCE_HEADER_VALUE: &str = "edit_predictions";
 /// The name of the header used to indicate that the maximum number of consecutive tool uses has been reached.
 pub const TOOL_USE_LIMIT_REACHED_HEADER_NAME: &str = "x-zed-tool-use-limit-reached";
 
-/// The name of the header used to indicate the minimum required Zed version.
+/// The name of the header used to indicate the minimum required Julia version.
 ///
-/// This can be used to force a Zed upgrade in order to continue communicating
+/// This can be used to force a Julia upgrade in order to continue communicating
 /// with the LLM service.
 pub const MINIMUM_REQUIRED_VERSION_HEADER_NAME: &str = "x-zed-minimum-required-version";
 

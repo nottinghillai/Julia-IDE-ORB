@@ -48,7 +48,7 @@ async fn test_extension_store(cx: &mut TestAppContext) {
                 "zed-monokai": {
                     "extension.json": r#"{
                         "id": "zed-monokai",
-                        "name": "Zed Monokai",
+                        "name": "Julia Monokai",
                         "version": "2.0.0",
                         "themes": {
                             "Monokai Dark": "themes/monokai.json",
@@ -95,7 +95,7 @@ async fn test_extension_store(cx: &mut TestAppContext) {
                 "zed-ruby": {
                     "extension.json": r#"{
                         "id": "zed-ruby",
-                        "name": "Zed Ruby",
+                        "name": "Julia Ruby",
                         "version": "1.0.0",
                         "grammars": {
                             "ruby": "grammars/ruby.wasm",
@@ -141,7 +141,7 @@ async fn test_extension_store(cx: &mut TestAppContext) {
                 ExtensionIndexEntry {
                     manifest: Arc::new(ExtensionManifest {
                         id: "zed-ruby".into(),
-                        name: "Zed Ruby".into(),
+                        name: "Julia Ruby".into(),
                         version: "1.0.0".into(),
                         schema_version: SchemaVersion::ZERO,
                         description: None,
@@ -174,7 +174,7 @@ async fn test_extension_store(cx: &mut TestAppContext) {
                 ExtensionIndexEntry {
                     manifest: Arc::new(ExtensionManifest {
                         id: "zed-monokai".into(),
-                        name: "Zed Monokai".into(),
+                        name: "Julia Monokai".into(),
                         version: "2.0.0".into(),
                         schema_version: SchemaVersion::ZERO,
                         description: None,
@@ -329,7 +329,7 @@ async fn test_extension_store(cx: &mut TestAppContext) {
         json!({
             "extension.json": r#"{
                 "id": "zed-gruvbox",
-                "name": "Zed Gruvbox",
+                "name": "Julia Gruvbox",
                 "version": "1.0.0",
                 "themes": {
                     "Gruvbox": "themes/gruvbox.json"
@@ -357,7 +357,7 @@ async fn test_extension_store(cx: &mut TestAppContext) {
         ExtensionIndexEntry {
             manifest: Arc::new(ExtensionManifest {
                 id: "zed-gruvbox".into(),
-                name: "Zed Gruvbox".into(),
+                name: "Julia Gruvbox".into(),
                 version: "1.0.0".into(),
                 schema_version: SchemaVersion::ZERO,
                 description: None,
@@ -423,7 +423,7 @@ async fn test_extension_store(cx: &mut TestAppContext) {
     let prev_fs_metadata_call_count = fs.metadata_call_count();
     let prev_fs_read_dir_call_count = fs.read_dir_call_count();
 
-    // Create new extension store, as if Zed were restarting.
+    // Create new extension store, as if Julia were restarting.
     drop(store);
     let store = cx.new(|cx| {
         ExtensionStore::new(
@@ -653,7 +653,7 @@ async fn test_extension_store_with_test_extension(cx: &mut TestAppContext) {
     });
     let user_agent = cx.update(|cx| {
         format!(
-            "Zed/{} ({}; {})",
+            "Julia/{} ({}; {})",
             AppVersion::global(cx),
             std::env::consts::OS,
             std::env::consts::ARCH

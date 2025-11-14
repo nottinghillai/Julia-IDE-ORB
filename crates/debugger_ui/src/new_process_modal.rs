@@ -799,7 +799,7 @@ impl ConfigureMode {
     pub(super) fn new(window: &mut Window, cx: &mut App) -> Entity<Self> {
         let program = cx.new(|cx| Editor::single_line(window, cx));
         program.update(cx, |this, cx| {
-            this.set_placeholder_text("ENV=Zed ~/bin/program --option", window, cx);
+            this.set_placeholder_text("ENV=Julia ~/bin/program --option", window, cx);
         });
 
         let cwd = cx.new(|cx| Editor::single_line(window, cx));

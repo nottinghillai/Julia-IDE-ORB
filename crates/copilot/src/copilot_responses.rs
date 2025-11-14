@@ -293,7 +293,7 @@ pub async fn stream_response(
         .header(
             "Editor-Version",
             format!(
-                "Zed/{}",
+                "Julia/{}",
                 option_env!("CARGO_PKG_VERSION").unwrap_or("unknown")
             ),
         )

@@ -346,7 +346,7 @@ fn update_command_palette_filter(cx: &mut App) {
                     filter.show_namespace("supermaven");
                     filter.show_action_types(edit_prediction_actions.iter());
                 }
-                EditPredictionProvider::Zed | EditPredictionProvider::Codestral => {
+                EditPredictionProvider::Julia | EditPredictionProvider::Codestral => {
                     filter.show_namespace("edit_prediction");
                     filter.hide_namespace("copilot");
                     filter.hide_namespace("supermaven");

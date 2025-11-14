@@ -1185,7 +1185,7 @@ impl Database {
                     .await?
                     .is_none()
             {
-                Err(anyhow!("user has not signed the Zed CLA"))?;
+                Err(anyhow!("user has not signed the Julia CLA"))?;
             }
         }
         Ok(())

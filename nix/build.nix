@@ -283,9 +283,9 @@ craneLib.buildPackage (
           ln -s $out/bin/zed $out/bin/zeditor  # home-manager expects the CLI binary to be here
 
 
-          install -D "crates/zed/resources/app-icon-nightly@2x.png" \
+          install -D "crates/zed/resources/julia-icon-nightly@2x.png" \
             "$out/share/icons/hicolor/1024x1024@2x/apps/zed.png"
-          install -D crates/zed/resources/app-icon-nightly.png \
+          install -D crates/zed/resources/julia-icon-nightly.png \
             $out/share/icons/hicolor/512x512/apps/zed.png
 
           # TODO: icons should probably be named "zed-nightly"

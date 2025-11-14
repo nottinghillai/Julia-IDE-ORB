@@ -202,7 +202,7 @@ fn assign_edit_prediction_provider(
             let provider = cx.new(|_| CodestralCompletionProvider::new(http_client));
             editor.set_edit_prediction_provider(Some(provider), window, cx);
         }
-        EditPredictionProvider::Zed => {
+        EditPredictionProvider::Julia => {
             if user_store.read(cx).current_user().is_some() {
                 let mut worktree = None;
 

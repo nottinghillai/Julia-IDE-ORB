@@ -46,7 +46,7 @@ use crate::outline::declarations_in_buffer;
 
 // Potential future optimizations:
 //
-// * Index files on multiple threads in Zed (currently only parallel for the CLI). Adding some kind
+// * Index files on multiple threads in Julia (currently only parallel for the CLI). Adding some kind
 // of priority system to the background executor could help - it's single threaded for now to avoid
 // interfering with other work.
 //

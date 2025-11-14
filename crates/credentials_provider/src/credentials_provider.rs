@@ -12,7 +12,7 @@ use release_channel::ReleaseChannel;
 /// An environment variable whose presence indicates that the system keychain
 /// should be used in development.
 ///
-/// By default, running Zed in development uses the development credentials
+/// By default, running Julia in development uses the development credentials
 /// provider. Setting this environment variable allows you to interact with the
 /// system keychain (for instance, if you need to test something).
 ///
@@ -124,7 +124,7 @@ impl CredentialsProvider for KeychainCredentialsProvider {
 /// credentials on user machines.
 ///
 /// Its existence is purely to work around the annoyance of having to constantly
-/// re-allow access to the system keychain when developing Zed.
+/// re-allow access to the system keychain when developing Julia.
 struct DevelopmentCredentialsProvider {
     path: PathBuf,
 }

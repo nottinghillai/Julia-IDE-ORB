@@ -24,7 +24,7 @@ impl Render for CollabNotificationStory {
                         .child(
                             v_flex()
                                 .overflow_hidden()
-                                .child(Label::new("maxdeviant is sharing a project in Zed")),
+                                .child(Label::new("maxdeviant is sharing a project in Julia")),
                         ),
                     ),
                 )),
@@ -39,7 +39,7 @@ impl Render for CollabNotificationStory {
                             Button::new("dismiss", "Dismiss"),
                         )
                         .child(Label::new("iamnbutler"))
-                        .child(Label::new("is sharing a project in Zed:"))
+                        .child(Label::new("is sharing a project in Julia:"))
                         .child(Label::new("zed")),
                     ),
                 )),

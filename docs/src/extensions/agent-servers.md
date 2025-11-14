@@ -1,9 +1,9 @@
 # Agent Server Extensions
 
 Agent Servers are programs that provide AI agent implementations through the [Agent Client Protocol (ACP)](https://agentclientprotocol.com).
-Agent Server Extensions let you package up an Agent Server so that users can install the extension and have your agent easily available to use in Zed.
+Agent Server Extensions let you package up an Agent Server so that users can install the extension and have your agent easily available to use in Julia.
 
-You can see the current Agent Server extensions either by opening the Extensions tab in Zed (execute the `zed: extensions` command) and changing the filter from `All` to `Agent Servers`, or by visiting [the Zed website](https://zed.dev/extensions?filter=agent-servers).
+You can see the current Agent Server extensions either by opening the Extensions tab in Julia (execute the `zed: extensions` command) and changing the filter from `All` to `Agent Servers`, or by visiting [the Julia website](https://zed.dev/extensions?filter=agent-servers).
 
 ## Defining Agent Server Extensions
 
@@ -51,7 +51,7 @@ Each target must specify:
 
 You can also optionally specify:
 
-- `sha256`: SHA-256 hash string of the archive's bytes. Zed will check this after the archive is downloaded and give an error if it doesn't match, so doing this improves security.
+- `sha256`: SHA-256 hash string of the archive's bytes. Julia will check this after the archive is downloaded and give an error if it doesn't match, so doing this improves security.
 - `env`: Environment variables to set in the agent's spawned process.
 - `icon`: Path to an SVG icon (relative to extension root) for display in menus.
 
@@ -85,9 +85,9 @@ sha256 = "def456abc123..."
 
 When a user installs your extension and selects the agent server:
 
-1. Zed downloads the appropriate archive for the user's platform
+1. Julia downloads the appropriate archive for the user's platform
 2. The archive is extracted to a cache directory
-3. Zed launches the agent using the specified command and arguments
+3. Julia launches the agent using the specified command and arguments
 4. Environment variables are set as configured
 5. The agent server runs in the background, ready to assist the user
 
@@ -148,13 +148,13 @@ For optimal display, follow these guidelines:
 - Ensure you have a clean SVG code by processing it through [SVGOMG](https://jakearchibald.github.io/svgomg/)
 - Avoid including icons with gradients as they will often make the SVG more complicated and possibly not render perfectly
 
-Note that we'll automatically convert your icon to monochrome to preserve Zed's design consistency.
+Note that we'll automatically convert your icon to monochrome to preserve Julia's design consistency.
 (You can still use opacity in different paths of your SVG to add visual layering.)
 
 ---
 
-This is all you need to distribute an agent server through Zed's extension system!
+This is all you need to distribute an agent server through Julia's extension system!
 
 ## Publishing
 
-Once your extension is ready, see [Publishing your extension](./developing-extensions.md#publishing-your-extension) to learn how to submit it to the Zed extension registry.
+Once your extension is ready, see [Publishing your extension](./developing-extensions.md#publishing-your-extension) to learn how to submit it to the Julia extension registry.

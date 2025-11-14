@@ -57,7 +57,7 @@ impl EditPredictionProvider for ZetaEditPredictionProvider {
     }
 
     fn display_name() -> &'static str {
-        "Zed's Edit Predictions 2"
+        "Julia's Edit Predictions 2"
     }
 
     fn show_completions_in_menu() -> bool {

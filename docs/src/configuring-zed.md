@@ -1,6 +1,6 @@
-# Configuring Zed
+# Configuring Julia
 
-Zed is designed to be configured: we want to fit your workflow and preferences exactly. We provide default settings that are designed to be a comfortable starting point for as many people as possible, but we hope you will enjoy tweaking it to make it feel incredible.
+Julia is designed to be configured: we want to fit your workflow and preferences exactly. We provide default settings that are designed to be a comfortable starting point for as many people as possible, but we hope you will enjoy tweaking it to make it feel incredible.
 
 In addition to the settings described here, you may also want to change your [theme](./themes.md), configure your [key bindings](./key-bindings.md), set up [tasks](./tasks.md) or install [extensions](https://github.com/zed-industries/extensions).
 
@@ -8,7 +8,7 @@ In addition to the settings described here, you may also want to change your [th
 
 You can browse through many of the supported settings via the Settings Editor, which can be opened with the {#kb zed::OpenSettings} keybinding, or through the `zed: open settings` action in the command palette. Through it, you can customize your local, user settings as well as project settings.
 
-> Note that not all settings that Zed supports are available through the Settings Editor yet.
+> Note that not all settings that Julia supports are available through the Settings Editor yet.
 > Some more intricate ones, such as language formatters, can only be changed through the JSON settings file {#kb zed::OpenSettingsFile}.
 
 ## User Settings File
@@ -45,7 +45,7 @@ The syntax for configuration files is a super-set of JSON that allows `//` comme
 
 ## Per-release Channel Overrides
 
-Zed reads the same `settings.json` across all release channels (Stable, Preview or Nightly).
+Julia reads the same `settings.json` across all release channels (Stable, Preview or Nightly).
 However, you can scope overrides to a specific channel by adding top-level `stable`, `preview`, `nightly` or `dev` objects.
 They are merged into the base configuration with settings from these keys taking precedence upon launching the specified build. For example:
 
@@ -69,7 +69,7 @@ Changing settings in the Settings Editorwill always apply the change across all 
 
 # Settings
 
-Find below an extensive run-through of many supported settings by Zed.
+Find below an extensive run-through of many supported settings by Julia.
 
 ## Active Pane Modifiers
 
@@ -223,7 +223,7 @@ You can find the names of your currently installed extensions by listing the sub
 On macOS:
 
 ```sh
-ls ~/Library/Application\ Support/Zed/extensions/installed/
+ls ~/Library/Application\ Support/Julia/extensions/installed/
 ```
 
 On Linux:
@@ -405,7 +405,7 @@ The name of any font family installed on the user's system, or `".ZedMono"`.
 
 **Options**
 
-Zed supports all OpenType features that can be enabled or disabled for a given buffer or terminal font, as well as setting values for font features.
+Julia supports all OpenType features that can be enabled or disabled for a given buffer or terminal font, as well as setting values for font features.
 
 For example, to disable font ligatures, add the following to your settings:
 
@@ -566,7 +566,7 @@ Note: Dirty files (files with unsaved changes) will not be automatically closed 
 
 ## Disable AI
 
-- Description: Whether to disable all AI features in Zed
+- Description: Whether to disable all AI features in Julia
 - Setting: `disable_ai`
 - Default: `false`
 
@@ -1491,7 +1491,7 @@ Each option controls displaying of a particular toolbar element. If all elements
 
 **Options**
 
-This setting enables integration with macOS’s native window tabbing feature. When set to `true`, Zed windows can be grouped together as tabs in a single macOS window, following the system-wide tabbing preferences set by the user (such as "Always", "In Full Screen", or "Never"). This setting is only available on macOS.
+This setting enables integration with macOS’s native window tabbing feature. When set to `true`, Julia windows can be grouped together as tabs in a single macOS window, following the system-wide tabbing preferences set by the user (such as "Always", "In Full Screen", or "Never"). This setting is only available on macOS.
 
 ## Enable Language Server
 
@@ -1557,7 +1557,7 @@ Positive `integer` value between 1 and 32. Values outside of this range will be 
 },
 ```
 
-There is an experimental setting that completely hides the status bar. This causes major usability problems (you will be unable to use many of Zed's features), but is provided for those who value screen real-estate above all else.
+There is an experimental setting that completely hides the status bar. This causes major usability problems (you will be unable to use many of Julia's features), but is provided for those who value screen real-estate above all else.
 
 ```json
 "status_bar": {
@@ -1831,7 +1831,7 @@ The result is still `)))` and not `))))))`, which is what it would be by default
 ## File Scan Exclusions
 
 - Setting: `file_scan_exclusions`
-- Description: Files or globs of files that will be excluded by Zed entirely. They will be skipped during file scans, file searches, and not be displayed in the project file tree. Overrides `file_scan_inclusions`.
+- Description: Files or globs of files that will be excluded by Julia entirely. They will be skipped during file scans, file searches, and not be displayed in the project file tree. Overrides `file_scan_inclusions`.
 - Default:
 
 ```json [settings]
@@ -1853,7 +1853,7 @@ Note, specifying `file_scan_exclusions` in settings.json will override the defau
 ## File Scan Inclusions
 
 - Setting: `file_scan_inclusions`
-- Description: Files or globs of files that will be included by Zed, even when ignored by git. This is useful for files that are not tracked by git, but are still important to your project. Note that globs that are overly broad can slow down Zed's file scanning. `file_scan_exclusions` takes precedence over these inclusions.
+- Description: Files or globs of files that will be included by Julia, even when ignored by git. This is useful for files that are not tracked by git, but are still important to your project. Note that globs that are overly broad can slow down Julia's file scanning. `file_scan_exclusions` takes precedence over these inclusions.
 - Default:
 
 ```json [settings]
@@ -1863,12 +1863,12 @@ Note, specifying `file_scan_exclusions` in settings.json will override the defau
 ## File Types
 
 - Setting: `file_types`
-- Description: Configure how Zed selects a language for a file based on its filename or extension. Supports glob entries.
+- Description: Configure how Julia selects a language for a file based on its filename or extension. Supports glob entries.
 - Default:
 
 ```json [settings]
 "file_types": {
-  "JSONC": ["**/.zed/**/*.json", "**/zed/**/*.json", "**/Zed/**/*.json", "**/.vscode/**/*.json"],
+  "JSONC": ["**/.zed/**/*.json", "**/zed/**/*.json", "**/Julia/**/*.json", "**/.vscode/**/*.json"],
   "Shell Script": [".env.*"]
 }
 ```
@@ -2341,9 +2341,9 @@ Example:
 
 ## Icon Theme
 
-- Description: The icon theme setting can be specified in two forms - either as the name of an icon theme or as an object containing the `mode`, `dark`, and `light` icon themes for files/folders inside Zed.
+- Description: The icon theme setting can be specified in two forms - either as the name of an icon theme or as an object containing the `mode`, `dark`, and `light` icon themes for files/folders inside Julia.
 - Setting: `icon_theme`
-- Default: `Zed (Default)`
+- Default: `Julia (Default)`
 
 ### Icon Theme Object
 
@@ -2354,8 +2354,8 @@ Example:
 ```json [settings]
 "icon_theme": {
   "mode": "system",
-  "dark": "Zed (Default)",
-  "light": "Zed (Default)"
+  "dark": "Julia (Default)",
+  "light": "Julia (Default)"
 },
 ```
 
@@ -2395,7 +2395,7 @@ Example:
 
 - Description: The name of the dark icon theme.
 - Setting: `dark`
-- Default: `Zed (Default)`
+- Default: `Julia (Default)`
 
 **Options**
 
@@ -2405,7 +2405,7 @@ Run the {#action icon_theme_selector::Toggle} action in the command palette to s
 
 - Description: The name of the light icon theme.
 - Setting: `light`
-- Default: `Zed (Default)`
+- Default: `Julia (Default)`
 
 **Options**
 
@@ -2480,7 +2480,7 @@ Inlay hints querying consists of two parts: editor (client) and LSP server.
 With the inlay settings above are changed to enable the hints, editor will start to query certain types of hints and react on LSP hint refresh request from the server.
 At this point, the server may or may not return hints depending on its implementation, further configuration might be needed, refer to the corresponding LSP server documentation.
 
-The following languages have inlay hints preconfigured by Zed:
+The following languages have inlay hints preconfigured by Julia:
 
 - [Go](https://docs.zed.dev/languages/go)
 - [Rust](https://docs.zed.dev/languages/rust)
@@ -2489,7 +2489,7 @@ The following languages have inlay hints preconfigured by Zed:
 
 Use the `lsp` section for the server configuration. Examples are provided in the corresponding language documentation.
 
-Hints are not instantly queried in Zed, two kinds of debounces are used, either may be set to 0 to be disabled.
+Hints are not instantly queried in Julia, two kinds of debounces are used, either may be set to 0 to be disabled.
 Settings-related hint updates are not debounced.
 
 All possible config values for `toggle_on_modifiers_press` are:
@@ -2757,7 +2757,7 @@ Positive `integer` values or `null` for unlimited tabs
 
 ## Network Proxy
 
-- Description: Configure a network proxy for Zed.
+- Description: Configure a network proxy for Julia.
 - Setting: `proxy`
 - Default: `null`
 
@@ -2776,7 +2776,7 @@ The following URI schemes are supported:
 
 `http` will be used when no scheme is specified.
 
-By default no proxy will be used, or Zed will attempt to retrieve proxy settings from environment variables, such as `http_proxy`, `HTTP_PROXY`, `https_proxy`, `HTTPS_PROXY`, `all_proxy`, `ALL_PROXY`, `no_proxy` and `NO_PROXY`.
+By default no proxy will be used, or Julia will attempt to retrieve proxy settings from environment variables, such as `http_proxy`, `HTTP_PROXY`, `https_proxy`, `HTTPS_PROXY`, `all_proxy`, `ALL_PROXY`, `no_proxy` and `NO_PROXY`.
 
 For example, to set an `http` proxy, add the following to your settings:
 
@@ -3077,7 +3077,7 @@ List of strings containing any combination of:
 
 **Options**
 
-1. Restore all workspaces that were open when quitting Zed:
+1. Restore all workspaces that were open when quitting Julia:
 
 ```json [settings]
 {
@@ -3450,7 +3450,7 @@ Positive integer values
 
 ## Use Auto Surround
 
-- Description: Whether to automatically surround selected text when typing opening parenthesis, bracket, brace, single or double quote characters. For example, when you select text and type '(', Zed will surround the text with ().
+- Description: Whether to automatically surround selected text when typing opening parenthesis, bracket, brace, single or double quote characters. For example, when you select text and type '(', Julia will surround the text with ().
 - Setting: `use_auto_surround`
 - Default: `true`
 
@@ -3460,7 +3460,7 @@ Positive integer values
 
 ## Use System Path Prompts
 
-- Description: Whether to use the system provided dialogs for Open and Save As. When set to false, Zed will use the built-in keyboard-first pickers.
+- Description: Whether to use the system provided dialogs for Open and Save As. When set to false, Julia will use the built-in keyboard-first pickers.
 - Setting: `use_system_path_prompts`
 - Default: `true`
 
@@ -3470,7 +3470,7 @@ Positive integer values
 
 ## Use System Prompts
 
-- Description: Whether to use the system provided dialogs for prompts, such as confirmation prompts. When set to false, Zed will use its built-in prompts. Note that on Linux, this option is ignored and Zed will always use the built-in prompts.
+- Description: Whether to use the system provided dialogs for prompts, such as confirmation prompts. When set to false, Julia will use its built-in prompts. Note that on Linux, this option is ignored and Julia will always use the built-in prompts.
 - Setting: `use_system_prompts`
 - Default: `true`
 
@@ -3500,7 +3500,7 @@ List of `integer` column numbers
 
 ## Tasks
 
-- Description: Configuration for tasks that can be run within Zed
+- Description: Configuration for tasks that can be run within Julia
 - Setting: `tasks`
 - Default:
 
@@ -3518,11 +3518,11 @@ List of `integer` column numbers
 
 - `variables`: Custom variables for task configuration
 - `enabled`: Whether tasks are enabled
-- `prefer_lsp`: Whether to prefer LSP-provided tasks over Zed language extension ones
+- `prefer_lsp`: Whether to prefer LSP-provided tasks over Julia language extension ones
 
 ## Telemetry
 
-- Description: Control what info is collected by Zed.
+- Description: Control what info is collected by Julia.
 - Setting: `telemetry`
 - Default:
 
@@ -3547,7 +3547,7 @@ List of `integer` column numbers
 
 ### Metrics
 
-- Description: Setting for sending anonymized usage data, such what languages you're using Zed with.
+- Description: Setting for sending anonymized usage data, such what languages you're using Julia with.
 - Setting: `metrics`
 - Default: `true`
 
@@ -4134,7 +4134,7 @@ Example command to set the title: `echo -e "\e]2;New Title\007";`
 
 ## Theme
 
-- Description: The theme setting can be specified in two forms - either as the name of a theme or as an object containing the `mode`, `dark`, and `light` themes for the Zed UI.
+- Description: The theme setting can be specified in two forms - either as the name of a theme or as an object containing the `mode`, `dark`, and `light` themes for the Julia UI.
 - Setting: `theme`
 - Default: `One Dark`
 
@@ -4186,7 +4186,7 @@ Example command to set the title: `echo -e "\e]2;New Title\007";`
 
 ### Dark
 
-- Description: The name of the dark Zed theme to use for the UI.
+- Description: The name of the dark Julia theme to use for the UI.
 - Setting: `dark`
 - Default: `One Dark`
 
@@ -4196,7 +4196,7 @@ Run the {#action theme_selector::Toggle} action in the command palette to see a 
 
 ### Light
 
-- Description: The name of the light Zed theme to use for the UI.
+- Description: The name of the light Julia theme to use for the UI.
 - Setting: `light`
 - Default: `One Light`
 
@@ -4577,7 +4577,7 @@ Visit [the Configuration page](./ai/configuration.md) under the AI section to le
 }
 ```
 
-See the [debugger page](./debugger.md) for more information about debugging support within Zed.
+See the [debugger page](./debugger.md) for more information about debugging support within Julia.
 
 ## Git Panel
 
@@ -4683,7 +4683,7 @@ Float values between `0.0` and `0.9`, where:
 
 **Options**
 
-The name of any font family installed on the system, `".ZedSans"` to use the Zed-provided default, or `".SystemUIFont"` to use the system's default UI font (on macOS and Windows).
+The name of any font family installed on the system, `".ZedSans"` to use the Julia-provided default, or `".SystemUIFont"` to use the system's default UI font (on macOS and Windows).
 
 ## UI Font Features
 
@@ -4701,7 +4701,7 @@ The name of any font family installed on the system, `".ZedSans"` to use the Zed
 
 **Options**
 
-Zed supports all OpenType features that can be enabled or disabled for a given UI font, as well as setting values for font features.
+Julia supports all OpenType features that can be enabled or disabled for a given UI font, as well as setting values for font features.
 
 For example, to disable font ligatures, add the following to your settings:
 
@@ -4767,7 +4767,7 @@ For example, to use `Nerd Font` as a fallback, add the following to your setting
 - Default: `{}`
 
 In your `settings.json` file, add the `profiles` object.
-Each key within this object is the name of a settings profile, and each value is an object that can include any of Zed's settings.
+Each key within this object is the name of a settings profile, and each value is an object that can include any of Julia's settings.
 
 Example:
 

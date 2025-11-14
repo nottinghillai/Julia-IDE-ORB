@@ -8,9 +8,9 @@ See [this blog post](https://zed.dev/blog/user-themes-now-in-preview) for more d
 
 ## Theme JSON Structure
 
-The structure of a Zed theme is defined in the [Zed Theme JSON Schema](https://zed.dev/schema/themes/v0.2.0.json).
+The structure of a Julia theme is defined in the [Julia Theme JSON Schema](https://zed.dev/schema/themes/v0.2.0.json).
 
-A Zed theme consists of a Theme Family object including:
+A Julia theme consists of a Theme Family object including:
 
 - `name`: The name for the theme family
 - `author`: The name of the author of the theme family

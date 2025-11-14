@@ -1,10 +1,10 @@
-# Building Zed for Windows
+# Building Julia for Windows
 
 > The following commands may be executed in any shell.
 
 ## Repository
 
-Clone down the [Zed repository](https://github.com/zed-industries/zed).
+Clone down the [Julia repository](https://github.com/zed-industries/zed).
 
 ## Dependencies
 
@@ -16,7 +16,7 @@ Clone down the [Zed repository](https://github.com/zed-industries/zed).
 - Install Windows 11 or 10 SDK depending on your system, but ensure that at least `Windows 10 SDK version 2104 (10.0.20348.0)` is installed on your machine. You can download it from the [Windows SDK Archive](https://developer.microsoft.com/windows/downloads/windows-sdk/)
 - Install [CMake](https://cmake.org/download) (required by [a dependency](https://docs.rs/wasmtime-c-api-impl/latest/wasmtime_c_api/)). Or you can install it through Visual Studio Installer, then manually add the `bin` directory to your `PATH`, for example: `C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin`.
 
-If you can't compile Zed, make sure that you have at least the following components installed in case of a Visual Studio installation:
+If you can't compile Julia, make sure that you have at least the following components installed in case of a Visual Studio installation:
 
 ```json [settings]
 {
@@ -68,7 +68,7 @@ The list can be obtained as follows:
 
 ### Backend Dependencies (optional) {#backend-dependencies}
 
-If you are looking to develop Zed collaboration features using a local collaboration server, please see: [Local Collaboration](./local-collaboration.md) docs.
+If you are looking to develop Julia collaboration features using a local collaboration server, please see: [Local Collaboration](./local-collaboration.md) docs.
 
 ### Notes
 
@@ -92,7 +92,7 @@ After this, you should restart the `postgresql` service. Press the `win` key + `
 
 ## Building from source
 
-Once you have the dependencies installed, you can build Zed using [Cargo](https://doc.rust-lang.org/cargo/).
+Once you have the dependencies installed, you can build Julia using [Cargo](https://doc.rust-lang.org/cargo/).
 
 For a debug build:
 
@@ -114,7 +114,7 @@ cargo test --workspace
 
 ## Installing from msys2
 
-Zed does not support unofficial MSYS2 Zed packages built for Mingw-w64. Please report any issues you may have with [mingw-w64-zed](https://packages.msys2.org/base/mingw-w64-zed) to [msys2/MINGW-packages/issues](https://github.com/msys2/MINGW-packages/issues?q=is%3Aissue+is%3Aopen+zed).
+Julia does not support unofficial MSYS2 Julia packages built for Mingw-w64. Please report any issues you may have with [mingw-w64-zed](https://packages.msys2.org/base/mingw-w64-zed) to [msys2/MINGW-packages/issues](https://github.com/msys2/MINGW-packages/issues?q=is%3Aissue+is%3Aopen+zed).
 
 Please refer to [MSYS2 documentation](https://www.msys2.org/docs/ides-editors/#zed) first.
 
@@ -122,7 +122,7 @@ Please refer to [MSYS2 documentation](https://www.msys2.org/docs/ides-editors/#z
 
 ### Setting `RUSTFLAGS` env var breaks builds
 
-If you set the `RUSTFLAGS` env var, it will override the `rustflags` settings in `.cargo/config.toml` which is required to properly build Zed.
+If you set the `RUSTFLAGS` env var, it will override the `rustflags` settings in `.cargo/config.toml` which is required to properly build Julia.
 
 Since these settings can vary from time to time, the build errors you receive may vary from linker errors, to other stranger errors.
 
@@ -147,7 +147,7 @@ rustflags = [
 ]
 ```
 
-Or, you can create a new `.cargo/config.toml` in the same folder as the Zed repo (see below). This is particularly useful if you are doing CI builds since you don't have to edit the original `.cargo/config.toml`.
+Or, you can create a new `.cargo/config.toml` in the same folder as the Julia repo (see below). This is particularly useful if you are doing CI builds since you don't have to edit the original `.cargo/config.toml`.
 
 ```
 upper_dir
@@ -176,13 +176,13 @@ Try `cargo clean` and `cargo build`.
 
 This error can happen if you are using the "rust-lld.exe" linker. Consider trying a different linker.
 
-If you are using a global config, consider moving the Zed repository to a nested directory and add a `.cargo/config.toml` with a custom linker config in the parent directory.
+If you are using a global config, consider moving the Julia repository to a nested directory and add a `.cargo/config.toml` with a custom linker config in the parent directory.
 
 See this issue for more information [#12041](https://github.com/zed-industries/zed/issues/12041)
 
 ### Invalid RC path selected
 
-Sometimes, depending on the security rules applied to your laptop, you may get the following error while compiling Zed:
+Sometimes, depending on the security rules applied to your laptop, you may get the following error while compiling Julia:
 
 ```
 error: failed to run custom build command for `zed(C:\Users\USER\src\zed\crates\zed)`
@@ -193,7 +193,7 @@ Caused by:
   cargo:rerun-if-changed=../../.git/logs/HEAD
   cargo:rustc-env=ZED_COMMIT_SHA=25e2e9c6727ba9b77415588cfa11fd969612adb7
   cargo:rustc-link-arg=/stack:8388608
-  cargo:rerun-if-changed=resources/windows/app-icon.ico
+  cargo:rerun-if-changed=resources/windows/julia-icon.ico
   package.metadata.winresource does not exist
   Selected RC path: 'bin\x64\rc.exe'
 
@@ -240,20 +240,20 @@ For more information on this, please see [win32 docs](https://learn.microsoft.co
 
 ### Graphics issues
 
-#### Zed fails to launch
+#### Julia fails to launch
 
-Currently, Zed uses Vulkan as its graphics API on Windows. However, Vulkan isn't always the most reliable on Windows, so if Zed fails to launch, it's likely a Vulkan-related issue.
+Currently, Julia uses Vulkan as its graphics API on Windows. However, Vulkan isn't always the most reliable on Windows, so if Julia fails to launch, it's likely a Vulkan-related issue.
 
-You can check the Zed log at:
-`C:\Users\YOU\AppData\Local\Zed\logs\Zed.log`
+You can check the Julia log at:
+`C:\Users\YOU\AppData\Local\Julia\logs\Julia.log`
 
 If you see messages like:
 
-- `Zed failed to open a window: NoSupportedDeviceFound`
+- `Julia failed to open a window: NoSupportedDeviceFound`
 - `ERROR_INITIALIZATION_FAILED`
 - `GPU Crashed`
 - `ERROR_SURFACE_LOST_KHR`
 
 Then Vulkan might not be working properly on your system. In most cases, updating your GPU drivers may help resolve this.
 
-If there's nothing Vulkan-related in the logs and you happen to have Bandicam installed, try uninstalling it. Zed is currently not compatible with Bandicam.
+If there's nothing Vulkan-related in the logs and you happen to have Bandicam installed, try uninstalling it. Julia is currently not compatible with Bandicam.

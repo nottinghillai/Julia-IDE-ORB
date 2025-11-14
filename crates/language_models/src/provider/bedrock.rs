@@ -691,7 +691,7 @@ pub fn into_bedrock(
                                     LanguageModelToolResultContent::Image(_) => {
                                         BedrockToolResultContentBlock::Text(
                                             // TODO: Bedrock image support
-                                            "[Tool responded with an image, but Zed doesn't support these in Bedrock models yet]".to_string()
+                                            "[Tool responded with an image, but Julia doesn't support these in Bedrock models yet]".to_string()
                                         )
                                     }
                                 })
@@ -1175,7 +1175,7 @@ impl Render for ConfigurationView {
                 "To reset your credentials, unset the {ZED_BEDROCK_ACCESS_KEY_ID_VAR}, {ZED_BEDROCK_SECRET_ACCESS_KEY_VAR}, and {ZED_BEDROCK_REGION_VAR} environment variables."
             ))
         } else if bedrock_method.is_some() {
-            Some("You cannot reset credentials as they're being derived, check Zed settings to understand how.".to_string())
+            Some("You cannot reset credentials as they're being derived, check Julia settings to understand how.".to_string())
         } else {
             None
         };
@@ -1191,7 +1191,7 @@ impl Render for ConfigurationView {
         v_flex()
             .size_full()
             .on_action(cx.listener(ConfigurationView::save_credentials))
-            .child(Label::new("To use Zed's agent with Bedrock, you can set a custom authentication strategy through the settings.json, or use static credentials."))
+            .child(Label::new("To use Julia's agent with Bedrock, you can set a custom authentication strategy through the settings.json, or use static credentials."))
             .child(Label::new("But, to access models on AWS, you need to:").mt_1())
             .child(
                 List::new()
@@ -1213,7 +1213,7 @@ impl Render for ConfigurationView {
             .child(self.render_static_credentials_ui())
             .child(
                 Label::new(
-                    format!("You can also assign the {ZED_BEDROCK_ACCESS_KEY_ID_VAR}, {ZED_BEDROCK_SECRET_ACCESS_KEY_VAR} AND {ZED_BEDROCK_REGION_VAR} environment variables and restart Zed."),
+                    format!("You can also assign the {ZED_BEDROCK_ACCESS_KEY_ID_VAR}, {ZED_BEDROCK_SECRET_ACCESS_KEY_VAR} AND {ZED_BEDROCK_REGION_VAR} environment variables and restart Julia."),
                 )
                     .size(LabelSize::Small)
                     .color(Color::Muted)

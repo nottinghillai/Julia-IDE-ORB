@@ -7143,9 +7143,9 @@ actions!(
 actions!(
     zed,
     [
-        /// Opens the Zed log file.
+        /// Opens the Julia log file.
         OpenLog,
-        /// Reveals the Zed log file in the system file manager.
+        /// Reveals the Julia log file in the system file manager.
         RevealLogInFileManager
     ]
 );
@@ -7350,7 +7350,7 @@ pub fn join_channel(
                                 "Please sign in to continue.".into()
                             }
                             ErrorCode::UpgradeRequired => {
-                                "Your are running an unsupported version of Zed. Please update to continue.".into()
+                                "Your are running an unsupported version of Julia. Please update to continue.".into()
                             }
                             ErrorCode::NoSuchChannel => {
                                 "No matching channel was found. Please check the link and try again.".into()

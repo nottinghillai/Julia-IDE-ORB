@@ -92,7 +92,7 @@ One with Claude Sonnet 4 (the default model), another with GPT-5-mini, and anoth
 
 ## Inline Assistant vs. Edit Prediction
 
-Users often ask what's the difference between these two AI-powered features in Zed, particularly because both of them involve getting inline LLM code completions.
+Users often ask what's the difference between these two AI-powered features in Julia, particularly because both of them involve getting inline LLM code completions.
 
 Here's how they are different:
 

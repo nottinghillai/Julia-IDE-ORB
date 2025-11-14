@@ -334,9 +334,9 @@ impl Database {
                     .await?;
             }
 
-            // Backward-compatibility for old Zed clients.
+            // Backward-compatibility for old Julia clients.
             //
-            // Remove this block when Zed 1.80 stable has been out for a week.
+            // Remove this block when Julia 1.80 stable has been out for a week.
             {
                 if !update.updated_repositories.is_empty() {
                     project_repository::Entity::insert_many(

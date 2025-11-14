@@ -741,7 +741,7 @@ impl ConfigurationView {
                         "Start Ollama and download a model: `ollama run gpt-oss:20b`",
                     ))
                     .child(InstructionListItem::text_only(
-                        "Click 'Connect' below to start using Ollama in Zed",
+                        "Click 'Connect' below to start using Ollama in Julia",
                     )),
             )
             .child(Label::new(
@@ -765,7 +765,7 @@ impl ConfigurationView {
               .child(self.api_key_editor.clone())
               .child(
                   Label::new(
-                      format!("You can also assign the {API_KEY_ENV_VAR_NAME} environment variable and restart Zed.")
+                      format!("You can also assign the {API_KEY_ENV_VAR_NAME} environment variable and restart Julia.")
                   )
                   .size(LabelSize::Small)
                   .color(Color::Muted),

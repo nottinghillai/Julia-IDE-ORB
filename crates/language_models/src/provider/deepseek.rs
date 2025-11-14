@@ -621,7 +621,7 @@ impl Render for ConfigurationView {
             v_flex()
                 .size_full()
                 .on_action(cx.listener(Self::save_api_key))
-                .child(Label::new("To use DeepSeek in Zed, you need an API key:"))
+                .child(Label::new("To use DeepSeek in Julia, you need an API key:"))
                 .child(
                     List::new()
                         .child(InstructionListItem::new(

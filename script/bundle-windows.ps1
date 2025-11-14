@@ -221,7 +221,7 @@ function BuildInstaller {
     switch ($channel) {
         "stable" {
             $appId = "{{2DB0DA96-CA55-49BB-AF4F-64AF36A86712}"
-            $appIconName = "app-icon"
+            $appIconName = "julia-icon"
             $appName = "Zed"
             $appDisplayName = "Zed"
             $appSetupName = "Zed-$Architecture"
@@ -235,7 +235,7 @@ function BuildInstaller {
         }
         "preview" {
             $appId = "{{F70E4811-D0E2-4D88-AC99-D63752799F95}"
-            $appIconName = "app-icon-preview"
+            $appIconName = "julia-icon-preview"
             $appName = "Zed Preview"
             $appDisplayName = "Zed Preview"
             $appSetupName = "Zed-$Architecture"
@@ -249,7 +249,7 @@ function BuildInstaller {
         }
         "nightly" {
             $appId = "{{1BDB21D3-14E7-433C-843C-9C97382B2FE0}"
-            $appIconName = "app-icon-nightly"
+            $appIconName = "julia-icon-nightly"
             $appName = "Zed Nightly"
             $appDisplayName = "Zed Nightly"
             $appSetupName = "Zed-$Architecture"
@@ -263,7 +263,7 @@ function BuildInstaller {
         }
         "dev" {
             $appId = "{{8357632E-24A4-4F32-BA97-E575B4D1FE5D}"
-            $appIconName = "app-icon-dev"
+            $appIconName = "julia-icon-dev"
             $appName = "Zed Dev"
             $appDisplayName = "Zed Dev"
             $appSetupName = "Zed-$Architecture"

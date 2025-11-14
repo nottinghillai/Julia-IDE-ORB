@@ -469,7 +469,7 @@ impl Render for ConfigurationView {
         let api_key_section = if self.should_render_editor(cx) {
             v_flex()
                 .on_action(cx.listener(Self::save_api_key))
-                .child(Label::new("To use Zed's agent with Vercel v0, you need to add an API key. Follow these steps:"))
+                .child(Label::new("To use Julia's agent with Vercel v0, you need to add an API key. Follow these steps:"))
                 .child(
                     List::new()
                         .child(InstructionListItem::new(
@@ -484,7 +484,7 @@ impl Render for ConfigurationView {
                 .child(self.api_key_editor.clone())
                 .child(
                     Label::new(format!(
-                        "You can also assign the {API_KEY_ENV_VAR_NAME} environment variable and restart Zed."
+                        "You can also assign the {API_KEY_ENV_VAR_NAME} environment variable and restart Julia."
                     ))
                     .size(LabelSize::Small)
                     .color(Color::Muted),

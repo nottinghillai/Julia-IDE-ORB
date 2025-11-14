@@ -9,7 +9,7 @@ use settings_macros::MergeFrom;
 #[skip_serializing_none]
 #[derive(Debug, PartialEq, Clone, Default, Serialize, Deserialize, JsonSchema, MergeFrom)]
 pub struct ExtensionSettingsContent {
-    /// The extensions that should be automatically installed by Zed.
+    /// The extensions that should be automatically installed by Julia.
     ///
     /// This is used to make functionality provided by extensions (e.g., language support)
     /// available out-of-the-box.

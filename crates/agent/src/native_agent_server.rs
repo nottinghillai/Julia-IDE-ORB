@@ -26,7 +26,7 @@ impl AgentServer for NativeAgentServer {
     }
 
     fn name(&self) -> SharedString {
-        "Zed Agent".into()
+        "Julia Agent".into()
     }
 
     fn logo(&self) -> ui::IconName {

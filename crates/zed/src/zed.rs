@@ -554,7 +554,7 @@ fn show_software_emulation_warning_if_needed(
         };
         let message = format!(
             db::indoc! {r#"
-            Zed uses {} for rendering and requires a compatible GPU.
+            Julia uses {} for rendering and requires a compatible GPU.
 
             Currently you are using a software emulated GPU ({}) which
             will result in awful performance.
@@ -1885,7 +1885,7 @@ fn open_telemetry_log_file(
             }
             let log_suffix = &log[start_offset..];
             let header = concat!(
-                "// Zed collects anonymous usage data to help us understand how people are using the app.\n",
+                "// Julia collects anonymous usage data to help us understand how people are using the app.\n",
                 "// Telemetry can be disabled via the `settings.json` file.\n",
                 "// Here is the data that has been reported for the current session:\n",
             );

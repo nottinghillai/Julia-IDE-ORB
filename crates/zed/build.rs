@@ -5,7 +5,7 @@ fn main() {
     if cfg!(target_os = "macos") {
         println!("cargo:rustc-env=MACOSX_DEPLOYMENT_TARGET=10.15.7");
 
-        // Weakly link ReplayKit to ensure Zed can be used on macOS 10.15+.
+        // Weakly link ReplayKit to ensure Julia can be used on macOS 10.15+.
         println!("cargo:rustc-link-arg=-Wl,-weak_framework,ReplayKit");
 
         // Seems to be required to enable Swift concurrency
@@ -51,11 +51,11 @@ fn main() {
 
         let release_channel = option_env!("RELEASE_CHANNEL").unwrap_or("dev");
         let icon = match release_channel {
-            "stable" => "resources/windows/app-icon.ico",
-            "preview" => "resources/windows/app-icon-preview.ico",
-            "nightly" => "resources/windows/app-icon-nightly.ico",
-            "dev" => "resources/windows/app-icon-dev.ico",
-            _ => "resources/windows/app-icon-dev.ico",
+            "stable" => "resources/windows/julia-icon.ico",
+            "preview" => "resources/windows/julia-icon-preview.ico",
+            "nightly" => "resources/windows/julia-icon-nightly.ico",
+            "dev" => "resources/windows/julia-icon-dev.ico",
+            _ => "resources/windows/julia-icon-dev.ico",
         };
         let icon = std::path::Path::new(icon);
 
@@ -71,8 +71,8 @@ fn main() {
             res.set_toolkit_path(explicit_rc_toolkit_path.as_str());
         }
         res.set_icon(icon.to_str().unwrap());
-        res.set("FileDescription", "Zed");
-        res.set("ProductName", "Zed");
+        res.set("FileDescription", "Julia");
+        res.set("ProductName", "Julia");
 
         if let Err(e) = res.compile() {
             eprintln!("{}", e);

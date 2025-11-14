@@ -1,12 +1,12 @@
 # LLM Providers
 
-To use AI in Zed, you need to have at least one large language model provider set up.
+To use AI in Julia, you need to have at least one large language model provider set up.
 
-You can do that by either subscribing to [one of Zed's plans](./plans-and-usage.md), or by using API keys you already have for the supported providers.
+You can do that by either subscribing to [one of Julia's plans](./plans-and-usage.md), or by using API keys you already have for the supported providers.
 
 ## Use Your Own Keys {#use-your-own-keys}
 
-If you already have an API key for an existing LLM provider, like Anthropic or OpenAI, you can add them to Zed and use the full power of the Agent Panel **_for free_**.
+If you already have an API key for an existing LLM provider, like Anthropic or OpenAI, you can add them to Julia and use the full power of the Agent Panel **_for free_**.
 
 To add an existing API key to a given provider, go to the Agent Panel settings (`agent: open settings`), look for the desired provider, paste the key into the input, and hit enter.
 
@@ -14,7 +14,7 @@ To add an existing API key to a given provider, go to the Agent Panel settings (
 
 ## Supported Providers
 
-Zed offers an extensive list of "use your own key" LLM providers
+Julia offers an extensive list of "use your own key" LLM providers
 
 - [Amazon Bedrock](#amazon-bedrock)
 - [Anthropic](#anthropic)
@@ -89,7 +89,7 @@ To do this:
 
 #### Cross-Region Inference
 
-The Zed implementation of Amazon Bedrock uses [Cross-Region inference](https://docs.aws.amazon.com/bedrock/latest/userguide/cross-region-inference.html) for all the models and region combinations that support it.
+The Julia implementation of Amazon Bedrock uses [Cross-Region inference](https://docs.aws.amazon.com/bedrock/latest/userguide/cross-region-inference.html) for all the models and region combinations that support it.
 With Cross-Region inference, you can distribute traffic across multiple AWS Regions, enabling higher throughput.
 
 For example, if you use `Claude Sonnet 3.7 Thinking` from `us-east-1`, it may be processed across the US regions, namely: `us-east-1`, `us-east-2`, or `us-west-2`.
@@ -114,11 +114,11 @@ You can use Anthropic models by choosing them via the model dropdown in the Agen
 
 Even if you pay for Claude Pro, you will still have to [pay for additional credits](https://console.anthropic.com/settings/plans) to use it via the API.
 
-Zed will also use the `ANTHROPIC_API_KEY` environment variable if it's defined.
+Julia will also use the `ANTHROPIC_API_KEY` environment variable if it's defined.
 
 #### Custom Models {#anthropic-custom-models}
 
-You can add custom models to the Anthropic provider by adding the following to your Zed `settings.json`:
+You can add custom models to the Anthropic provider by adding the following to your Julia `settings.json`:
 
 ```json [settings]
 {
@@ -167,12 +167,12 @@ You can configure a model to use [extended thinking](https://docs.anthropic.com/
 
 The DeepSeek API key will be saved in your keychain.
 
-Zed will also use the `DEEPSEEK_API_KEY` environment variable if it's defined.
+Julia will also use the `DEEPSEEK_API_KEY` environment variable if it's defined.
 
 #### Custom Models {#deepseek-custom-models}
 
-The Zed agent comes pre-configured to use the latest version for common models (DeepSeek Chat, DeepSeek Reasoner).
-If you wish to use alternate models or customize the API endpoint, you can do so by adding the following to your Zed `settings.json`:
+The Julia agent comes pre-configured to use the latest version for common models (DeepSeek Chat, DeepSeek Reasoner).
+If you wish to use alternate models or customize the API endpoint, you can do so by adding the following to your Julia `settings.json`:
 
 ```json [settings]
 {
@@ -202,7 +202,7 @@ You can also modify the `api_url` to use a custom endpoint if needed.
 
 ### GitHub Copilot Chat {#github-copilot-chat}
 
-You can use GitHub Copilot Chat with the Zed agent by choosing it via the model dropdown in the Agent Panel.
+You can use GitHub Copilot Chat with the Julia agent by choosing it via the model dropdown in the Agent Panel.
 
 1. Open the settings view (`agent: open settings`) and go to the GitHub Copilot Chat section
 2. Click on `Sign in to use GitHub Copilot`, follow the steps shown in the modal.
@@ -211,11 +211,11 @@ Alternatively, you can provide an OAuth token via the `GH_COPILOT_TOKEN` environ
 
 > **Note**: If you don't see specific models in the dropdown, you may need to enable them in your [GitHub Copilot settings](https://github.com/settings/copilot/features).
 
-To use Copilot Enterprise with Zed (for both agent and completions), you must configure your enterprise endpoint as described in [Configuring GitHub Copilot Enterprise](./edit-prediction.md#github-copilot-enterprise).
+To use Copilot Enterprise with Julia (for both agent and completions), you must configure your enterprise endpoint as described in [Configuring GitHub Copilot Enterprise](./edit-prediction.md#github-copilot-enterprise).
 
 ### Google AI {#google-ai}
 
-You can use Gemini models with the Zed agent by choosing it via the model dropdown in the Agent Panel.
+You can use Gemini models with the Julia agent by choosing it via the model dropdown in the Agent Panel.
 
 1. Go to the Google AI Studio site and [create an API key](https://aistudio.google.com/app/apikey).
 2. Open the settings view (`agent: open settings`) and go to the Google AI section
@@ -223,13 +223,13 @@ You can use Gemini models with the Zed agent by choosing it via the model dropdo
 
 The Google AI API key will be saved in your keychain.
 
-Zed will also use the `GEMINI_API_KEY` environment variable if it's defined. See [Using Gemini API keys](https://ai.google.dev/gemini-api/docs/api-key) in the Gemini docs for more.
+Julia will also use the `GEMINI_API_KEY` environment variable if it's defined. See [Using Gemini API keys](https://ai.google.dev/gemini-api/docs/api-key) in the Gemini docs for more.
 
 #### Custom Models {#google-ai-custom-models}
 
-By default, Zed will use `stable` versions of models, but you can use specific versions of models, including [experimental models](https://ai.google.dev/gemini-api/docs/models/experimental-models). You can configure a model to use [thinking mode](https://ai.google.dev/gemini-api/docs/thinking) (if it supports it) by adding a `mode` configuration to your model. This is useful for controlling reasoning token usage and response speed. If not specified, Gemini will automatically choose the thinking budget.
+By default, Julia will use `stable` versions of models, but you can use specific versions of models, including [experimental models](https://ai.google.dev/gemini-api/docs/models/experimental-models). You can configure a model to use [thinking mode](https://ai.google.dev/gemini-api/docs/thinking) (if it supports it) by adding a `mode` configuration to your model. This is useful for controlling reasoning token usage and response speed. If not specified, Gemini will automatically choose the thinking budget.
 
-Here is an example of a custom Google AI model you could add to your Zed `settings.json`:
+Here is an example of a custom Google AI model you could add to your Julia `settings.json`:
 
 ```json [settings]
 {
@@ -278,13 +278,13 @@ Tip: Set [LM Studio as a login item](https://lmstudio.ai/docs/advanced/headless#
 
 The Mistral API key will be saved in your keychain.
 
-Zed will also use the `MISTRAL_API_KEY` environment variable if it's defined.
+Julia will also use the `MISTRAL_API_KEY` environment variable if it's defined.
 
 #### Custom Models {#mistral-custom-models}
 
-The Zed agent comes pre-configured with several Mistral models (codestral-latest, mistral-large-latest, mistral-medium-latest, mistral-small-latest, open-mistral-nemo, and open-codestral-mamba).
+The Julia agent comes pre-configured with several Mistral models (codestral-latest, mistral-large-latest, mistral-medium-latest, mistral-small-latest, open-mistral-nemo, and open-codestral-mamba).
 All the default models support tool use.
-If you wish to use alternate models or customize their parameters, you can do so by adding the following to your Zed `settings.json`:
+If you wish to use alternate models or customize their parameters, you can do so by adding the following to your Julia `settings.json`:
 
 ```json [settings]
 {
@@ -329,8 +329,8 @@ Download and install Ollama from [ollama.com/download](https://ollama.com/downlo
 
 #### Ollama Context Length {#ollama-context}
 
-Zed has pre-configured maximum context lengths (`max_tokens`) to match the capabilities of common models.
-Zed API requests to Ollama include this as the `num_ctx` parameter, but the default values do not exceed `16384` so users with ~16GB of RAM are able to use most models out of the box.
+Julia has pre-configured maximum context lengths (`max_tokens`) to match the capabilities of common models.
+Julia API requests to Ollama include this as the `num_ctx` parameter, but the default values do not exceed `16384` so users with ~16GB of RAM are able to use most models out of the box.
 
 See [get_max_tokens in ollama.rs](https://github.com/zed-industries/zed/blob/main/crates/ollama/src/ollama.rs) for a complete set of defaults.
 
@@ -371,16 +371,16 @@ If the model is tagged with `tools` in the Ollama catalog, this option should be
 If the model is not tagged with `tools` in the Ollama catalog, this option can still be supplied with the value `true`; however, be aware that only the `Minimal` built-in profile will work.
 
 The `supports_thinking` option controls whether the model will perform an explicit "thinking" (reasoning) pass before producing its final answer.
-If the model is tagged with `thinking` in the Ollama catalog, set this option and you can use it in Zed.
+If the model is tagged with `thinking` in the Ollama catalog, set this option and you can use it in Julia.
 
 The `supports_images` option enables the model's vision capabilities, allowing it to process images included in the conversation context.
-If the model is tagged with `vision` in the Ollama catalog, set this option and you can use it in Zed.
+If the model is tagged with `vision` in the Ollama catalog, set this option and you can use it in Julia.
 
 #### Ollama Authentication
 
-In addition to running Ollama on your own hardware, which generally does not require authentication, Zed also supports connecting to remote Ollama instances. API keys are required for authentication.
+In addition to running Ollama on your own hardware, which generally does not require authentication, Julia also supports connecting to remote Ollama instances. API keys are required for authentication.
 
-One such service is [Ollama Turbo])(https://ollama.com/turbo). To configure Zed to use Ollama turbo:
+One such service is [Ollama Turbo])(https://ollama.com/turbo). To configure Julia to use Ollama turbo:
 
 1. Sign in to your Ollama account and subscribe to Ollama Turbo
 2. Visit [ollama.com/settings/keys](https://ollama.com/settings/keys) and create an API key
@@ -388,7 +388,7 @@ One such service is [Ollama Turbo])(https://ollama.com/turbo). To configure Zed 
 4. Paste your API key and press enter.
 5. For the API URL enter `https://ollama.com`
 
-Zed will also use the `OLLAMA_API_KEY` environment variables if defined.
+Julia will also use the `OLLAMA_API_KEY` environment variables if defined.
 
 ### OpenAI {#openai}
 
@@ -399,12 +399,12 @@ Zed will also use the `OLLAMA_API_KEY` environment variables if defined.
 
 The OpenAI API key will be saved in your keychain.
 
-Zed will also use the `OPENAI_API_KEY` environment variable if it's defined.
+Julia will also use the `OPENAI_API_KEY` environment variable if it's defined.
 
 #### Custom Models {#openai-custom-models}
 
-The Zed agent comes pre-configured to use the latest version for common models (GPT-5, GPT-5 mini, o4-mini, GPT-4.1, and others).
-To use alternate models, perhaps a preview release, or if you wish to control the request parameters, you can do so by adding the following to your Zed `settings.json`:
+The Julia agent comes pre-configured to use the latest version for common models (GPT-5, GPT-5 mini, o4-mini, GPT-4.1, and others).
+To use alternate models, perhaps a preview release, or if you wish to control the request parameters, you can do so by adding the following to your Julia `settings.json`:
 
 ```json [settings]
 {
@@ -436,7 +436,7 @@ Custom models will be listed in the model dropdown in the Agent Panel.
 
 ### OpenAI API Compatible {#openai-api-compatible}
 
-Zed supports using [OpenAI compatible APIs](https://platform.openai.com/docs/api-reference/chat) by specifying a custom `api_url` and `available_models` for the OpenAI provider.
+Julia supports using [OpenAI compatible APIs](https://platform.openai.com/docs/api-reference/chat) by specifying a custom `api_url` and `available_models` for the OpenAI provider.
 This is useful for connecting to other hosted services (like Together AI, Anyscale, etc.) or local models.
 
 You can add a custom, OpenAI-compatible model either via the UI or by editing your `settings.json`.
@@ -493,11 +493,11 @@ OpenRouter provides access to multiple AI models through a single API. It suppor
 
 The OpenRouter API key will be saved in your keychain.
 
-Zed will also use the `OPENROUTER_API_KEY` environment variable if it's defined.
+Julia will also use the `OPENROUTER_API_KEY` environment variable if it's defined.
 
 #### Custom Models {#openrouter-custom-models}
 
-You can add custom models to the OpenRouter provider by adding the following to your Zed `settings.json`:
+You can add custom models to the OpenRouter provider by adding the following to your Julia `settings.json`:
 
 ```json [settings]
 {
@@ -592,26 +592,26 @@ It supports text and image inputs and provides fast streaming responses.
 
 The v0 models are [OpenAI-compatible models](/#openai-api-compatible), but Vercel is listed as first-class provider in the panel's settings view.
 
-To start using it with Zed, ensure you have first created a [v0 API key](https://v0.dev/chat/settings/keys).
+To start using it with Julia, ensure you have first created a [v0 API key](https://v0.dev/chat/settings/keys).
 Once you have it, paste it directly into the Vercel provider section in the panel's settings view.
 
 You should then find it as `v0-1.5-md` in the model dropdown in the Agent Panel.
 
 ### xAI {#xai}
 
-Zed has first-class support for [xAI](https://x.ai/) models. You can use your own API key to access Grok models.
+Julia has first-class support for [xAI](https://x.ai/) models. You can use your own API key to access Grok models.
 
 1. [Create an API key in the xAI Console](https://console.x.ai/team/default/api-keys)
 2. Open the settings view (`agent: open settings`) and go to the **xAI** section
 3. Enter your xAI API key
 
-The xAI API key will be saved in your keychain. Zed will also use the `XAI_API_KEY` environment variable if it's defined.
+The xAI API key will be saved in your keychain. Julia will also use the `XAI_API_KEY` environment variable if it's defined.
 
-> **Note:** While the xAI API is OpenAI-compatible, Zed has first-class support for it as a dedicated provider. For the best experience, we recommend using the dedicated `x_ai` provider configuration instead of the [OpenAI API Compatible](#openai-api-compatible) method.
+> **Note:** While the xAI API is OpenAI-compatible, Julia has first-class support for it as a dedicated provider. For the best experience, we recommend using the dedicated `x_ai` provider configuration instead of the [OpenAI API Compatible](#openai-api-compatible) method.
 
 #### Custom Models {#xai-custom-models}
 
-The Zed agent comes pre-configured with common Grok models. If you wish to use alternate models or customize their parameters, you can do so by adding the following to your Zed `settings.json`:
+The Julia agent comes pre-configured with common Grok models. If you wish to use alternate models or customize their parameters, you can do so by adding the following to your Julia `settings.json`:
 
 ```json [settings]
 {

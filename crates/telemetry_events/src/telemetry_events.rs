@@ -1,4 +1,4 @@
-//! See [Telemetry in Zed](https://zed.dev/docs/telemetry) for additional information.
+//! See [Telemetry in Julia](https://zed.dev/docs/telemetry) for additional information.
 
 use semantic_version::SemanticVersion;
 use serde::{Deserialize, Serialize};
@@ -6,23 +6,23 @@ use std::{collections::HashMap, fmt::Display, time::Duration};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct EventRequestBody {
-    /// Identifier unique to each system Zed is installed on
+    /// Identifier unique to each system Julia is installed on
     pub system_id: Option<String>,
-    /// Identifier unique to each Zed installation (differs for stable, preview, dev)
+    /// Identifier unique to each Julia installation (differs for stable, preview, dev)
     pub installation_id: Option<String>,
-    /// Identifier unique to each logged in Zed user (randomly generated on first sign in)
-    /// Identifier unique to each Zed session (differs for each time you open Zed)
+    /// Identifier unique to each logged in Julia user (randomly generated on first sign in)
+    /// Identifier unique to each Julia session (differs for each time you open Julia)
     pub session_id: Option<String>,
     pub metrics_id: Option<String>,
-    /// True for Zed staff, otherwise false
+    /// True for Julia staff, otherwise false
     #[serde(skip_serializing_if = "Option::is_none")]
     pub is_staff: Option<bool>,
-    /// Zed version number
+    /// Julia version number
     pub app_version: String,
     pub os_name: String,
     pub os_version: Option<String>,
     pub architecture: String,
-    /// Zed release channel (stable, preview, dev)
+    /// Julia release channel (stable, preview, dev)
     pub release_channel: Option<String>,
     pub events: Vec<EventWrapper>,
 }
@@ -140,7 +140,7 @@ pub struct HangReport {
     pub os_name: String,
     pub os_version: Option<String>,
     pub architecture: String,
-    /// Identifier unique to each Zed installation (differs for stable, preview, dev)
+    /// Identifier unique to each Julia installation (differs for stable, preview, dev)
     pub installation_id: Option<String>,
 }
 
@@ -160,12 +160,12 @@ pub struct Panic {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub location_data: Option<LocationData>,
     pub backtrace: Vec<String>,
-    /// Zed version number
+    /// Julia version number
     pub app_version: String,
-    /// The Git commit SHA that Zed was built at.
+    /// The Git commit SHA that Julia was built at.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub app_commit_sha: Option<String>,
-    /// Zed release channel (stable, preview, dev)
+    /// Julia release channel (stable, preview, dev)
     pub release_channel: String,
     pub target: Option<String>,
     pub os_name: String,
@@ -173,13 +173,13 @@ pub struct Panic {
     pub architecture: String,
     /// The time the panic occurred (UNIX millisecond timestamp)
     pub panicked_on: i64,
-    /// Identifier unique to each system Zed is installed on
+    /// Identifier unique to each system Julia is installed on
     #[serde(skip_serializing_if = "Option::is_none")]
     pub system_id: Option<String>,
-    /// Identifier unique to each Zed installation (differs for stable, preview, dev)
+    /// Identifier unique to each Julia installation (differs for stable, preview, dev)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub installation_id: Option<String>,
-    /// Identifier unique to each Zed session (differs for each time you open Zed)
+    /// Identifier unique to each Julia session (differs for each time you open Julia)
     pub session_id: String,
 }
 

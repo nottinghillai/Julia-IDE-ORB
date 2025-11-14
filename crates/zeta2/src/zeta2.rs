@@ -1151,7 +1151,7 @@ impl Zeta {
                             move |cx| {
                                 cx.new(|cx| {
                                     ErrorMessagePrompt::new(error_message.clone(), cx)
-                                        .with_link_button("Update Zed", "https://zed.dev/releases")
+                                        .with_link_button("Update Julia", "https://zed.dev/releases")
                                 })
                             },
                         );
@@ -1676,7 +1676,7 @@ pub fn text_from_response(mut res: open_ai::Response) -> Option<String> {
 
 #[derive(Error, Debug)]
 #[error(
-    "You must update to Zed version {minimum_version} or higher to continue using edit predictions."
+    "You must update to Julia version {minimum_version} or higher to continue using edit predictions."
 )]
 pub struct ZedUpdateRequiredError {
     minimum_version: SemanticVersion,

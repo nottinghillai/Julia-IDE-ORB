@@ -14,7 +14,7 @@ use settings::update_settings_file;
 use ui::{Vector, VectorName, prelude::*};
 use workspace::{ModalView, Workspace};
 
-/// Introduces user to Zed's Edit Prediction feature
+/// Introduces user to Julia's Edit Prediction feature
 pub struct ZedPredictModal {
     onboarding: Entity<EditPredictionOnboarding>,
     focus_handle: FocusHandle,
@@ -53,7 +53,7 @@ impl ZedPredictModal {
                             let this = weak_entity.clone();
                             move |_window, cx| {
                                 ZedPredictUpsell::set_dismissed(true, cx);
-                                set_edit_prediction_provider(EditPredictionProvider::Zed, cx);
+                                set_edit_prediction_provider(EditPredictionProvider::Julia, cx);
                                 this.update(cx, |_, cx| cx.emit(DismissEvent)).ok();
                             }
                         }),

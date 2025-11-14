@@ -16,7 +16,7 @@ use crate::{Onboarding, OpenOnboarding};
 actions!(
     zed,
     [
-        /// Show the Zed welcome screen
+        /// Show the Julia welcome screen
         ShowWelcome
     ]
 );
@@ -185,10 +185,10 @@ impl Render for WelcomePage {
                                     .w_full()
                                     .justify_center()
                                     .gap_4()
-                                    .child(Vector::square(VectorName::ZedLogo, rems(2.)))
+                                    .child(Vector::square(VectorName::JuliaLogo, rems(2.)))
                                     .child(
-                                        div().child(Headline::new("Welcome to Zed")).child(
-                                            Label::new("The editor for what's next")
+                                        div().child(Headline::new("Welcome to Julia")).child(
+                                            Label::new("A timeless editor for modern craft")
                                                 .size(LabelSize::Small)
                                                 .color(Color::Muted)
                                                 .italic(),

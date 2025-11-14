@@ -255,7 +255,7 @@ pub enum AgentType {
 impl AgentType {
     fn label(&self) -> SharedString {
         match self {
-            Self::NativeAgent | Self::TextThread => "Zed Agent".into(),
+            Self::NativeAgent | Self::TextThread => "Julia Agent".into(),
             Self::Gemini => "Gemini CLI".into(),
             Self::ClaudeCode => "Claude Code".into(),
             Self::Codex => "Codex".into(),
@@ -1905,7 +1905,7 @@ impl AgentPanel {
                     let active_thread = active_thread.clone();
                     Some(ContextMenu::build(window, cx, |menu, _window, cx| {
                         menu.context(focus_handle.clone())
-                            .header("Zed Agent")
+                            .header("Julia Agent")
                             .when_some(active_thread, |this, active_thread| {
                                 let thread = active_thread.read(cx);
 
@@ -2360,7 +2360,7 @@ impl AgentPanel {
                 .when(border_bottom, |this| {
                     this.border_position(ui::BorderPosition::Bottom)
                 })
-                .title("Sign in to continue using Zed as your LLM provider.")
+                .title("Sign in to continue using Julia as your LLM provider.")
                 .actions_slot(
                     Button::new("sign_in", "Sign In")
                         .style(ButtonStyle::Tinted(ui::TintColor::Warning))

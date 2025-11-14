@@ -812,7 +812,7 @@ impl Server {
 
             tracing::info!("connection opened");
 
-            let user_agent = format!("Zed Server/{}", env!("CARGO_PKG_VERSION"));
+            let user_agent = format!("Julia Server/{}", env!("CARGO_PKG_VERSION"));
             let http_client = match ReqwestClient::user_agent(&user_agent) {
                 Ok(http_client) => Arc::new(http_client),
                 Err(error) => {
@@ -3604,7 +3604,7 @@ async fn send_channel_message(
     _response: Response<proto::SendChannelMessage>,
     _session: MessageContext,
 ) -> Result<()> {
-    Err(anyhow!("chat has been removed in the latest version of Zed").into())
+    Err(anyhow!("chat has been removed in the latest version of Julia").into())
 }
 
 /// Delete a channel message
@@ -3613,7 +3613,7 @@ async fn remove_channel_message(
     _response: Response<proto::RemoveChannelMessage>,
     _session: MessageContext,
 ) -> Result<()> {
-    Err(anyhow!("chat has been removed in the latest version of Zed").into())
+    Err(anyhow!("chat has been removed in the latest version of Julia").into())
 }
 
 async fn update_channel_message(
@@ -3621,7 +3621,7 @@ async fn update_channel_message(
     _response: Response<proto::UpdateChannelMessage>,
     _session: MessageContext,
 ) -> Result<()> {
-    Err(anyhow!("chat has been removed in the latest version of Zed").into())
+    Err(anyhow!("chat has been removed in the latest version of Julia").into())
 }
 
 /// Mark a channel message as read
@@ -3629,7 +3629,7 @@ async fn acknowledge_channel_message(
     _request: proto::AckChannelMessage,
     _session: MessageContext,
 ) -> Result<()> {
-    Err(anyhow!("chat has been removed in the latest version of Zed").into())
+    Err(anyhow!("chat has been removed in the latest version of Julia").into())
 }
 
 /// Mark a buffer version as synced
@@ -3686,7 +3686,7 @@ async fn join_channel_chat(
     _response: Response<proto::JoinChannelChat>,
     _session: MessageContext,
 ) -> Result<()> {
-    Err(anyhow!("chat has been removed in the latest version of Zed").into())
+    Err(anyhow!("chat has been removed in the latest version of Julia").into())
 }
 
 /// Stop receiving chat updates for a channel
@@ -3694,7 +3694,7 @@ async fn leave_channel_chat(
     _request: proto::LeaveChannelChat,
     _session: MessageContext,
 ) -> Result<()> {
-    Err(anyhow!("chat has been removed in the latest version of Zed").into())
+    Err(anyhow!("chat has been removed in the latest version of Julia").into())
 }
 
 /// Retrieve the chat history for a channel
@@ -3703,7 +3703,7 @@ async fn get_channel_messages(
     _response: Response<proto::GetChannelMessages>,
     _session: MessageContext,
 ) -> Result<()> {
-    Err(anyhow!("chat has been removed in the latest version of Zed").into())
+    Err(anyhow!("chat has been removed in the latest version of Julia").into())
 }
 
 /// Retrieve specific chat messages
@@ -3712,7 +3712,7 @@ async fn get_channel_messages_by_id(
     _response: Response<proto::GetChannelMessagesById>,
     _session: MessageContext,
 ) -> Result<()> {
-    Err(anyhow!("chat has been removed in the latest version of Zed").into())
+    Err(anyhow!("chat has been removed in the latest version of Julia").into())
 }
 
 /// Retrieve the current users notifications

@@ -169,7 +169,7 @@ impl RenderOnce for AiUpsellCard {
         match self.sign_in_status {
             SignInStatus::SignedIn => match self.user_plan {
                 None | Some(Plan::V1(PlanV1::ZedFree) | Plan::V2(PlanV2::ZedFree)) => card
-                    .child(Label::new("Try Zed AI").size(LabelSize::Large))
+                    .child(Label::new("Try Julia AI").size(LabelSize::Large))
                     .map(|this| {
                         if self.account_too_young {
                             this.child(YoungAccountBanner).child(
@@ -236,7 +236,7 @@ impl RenderOnce for AiUpsellCard {
                     }),
                 Some(plan @ (Plan::V1(PlanV1::ZedProTrial) | Plan::V2(PlanV2::ZedProTrial))) => {
                     card.child(pro_trial_stamp)
-                        .child(Label::new("You're in the Zed Pro Trial").size(LabelSize::Large))
+                        .child(Label::new("You're in the Julia Pro Trial").size(LabelSize::Large))
                         .child(
                             Label::new("Here's what you get for the next 14 days:")
                                 .color(Color::Muted)
@@ -246,7 +246,7 @@ impl RenderOnce for AiUpsellCard {
                 }
                 Some(plan @ (Plan::V1(PlanV1::ZedPro) | Plan::V2(PlanV2::ZedPro))) => card
                     .child(certified_user_stamp)
-                    .child(Label::new("You're in the Zed Pro plan").size(LabelSize::Large))
+                    .child(Label::new("You're in the Julia Pro plan").size(LabelSize::Large))
                     .child(
                         Label::new("Here's what you get:")
                             .color(Color::Muted)
@@ -256,7 +256,7 @@ impl RenderOnce for AiUpsellCard {
             },
             // Signed Out State
             _ => card
-                .child(Label::new("Try Zed AI").size(LabelSize::Large))
+                .child(Label::new("Try Julia AI").size(LabelSize::Large))
                 .child(
                     div()
                         .max_w_3_4()
@@ -295,7 +295,7 @@ impl Component for AiUpsellCard {
     }
 
     fn description() -> Option<&'static str> {
-        Some("A card presenting the Zed AI product during user's first-open onboarding flow.")
+        Some("A card presenting the Julia AI product during user's first-open onboarding flow.")
     }
 
     fn preview(_window: &mut Window, _cx: &mut App) -> Option<AnyElement> {

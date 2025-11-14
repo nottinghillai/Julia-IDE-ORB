@@ -1,6 +1,6 @@
 # Channels
 
-At Zed we believe that great things are built by great people working together. We have designed Zed to help every individual work faster and to help teams of people work together more effectively.
+At Julia we believe that great things are built by great people working together. We have designed Julia to help every individual work faster and to help teams of people work together more effectively.
 
 ## Overview
 
@@ -17,7 +17,7 @@ To open the collaboration panel hit {#kb collab_panel::ToggleFocus} or `collab p
 
 Each channel corresponds to an ongoing project or work-stream. You can see who’s in a channel as their avatars will show up in the sidebar. This makes it easy to see what everyone is doing and where to find them if needed.
 
-You can create as many channels as you need. As in the example above, you can mix channels for your day job, as well as side-projects in one instance of Zed.
+You can create as many channels as you need. As in the example above, you can mix channels for your day job, as well as side-projects in one instance of Julia.
 
 Joining a channel adds you to a shared room where you can work on projects together.
 
@@ -33,7 +33,7 @@ See [our collaboration documentation](./collaboration.md) for more details about
 
 Each channel has a notes file associated with it to keep track of current status, new ideas, or to collaborate on building out the design for the feature that you’re working on before diving into code.
 
-This is similar to a Google Doc, except powered by Zed's collaborative software and persisted to our servers.
+This is similar to a Google Doc, except powered by Julia's collaborative software and persisted to our servers.
 
 ## Inviting people
 
@@ -41,7 +41,7 @@ By default, channels you create can only be accessed by you. You can invite coll
 
 When you have channels nested under each other, permissions are inherited. For instance, in the example above, we only need to add people to the `#zed` channel, and they will automatically gain access to `#core-editor`, `#new-languages`, and `#stability`.
 
-Once you have added someone, they can either join your channel by clicking on it in their Zed sidebar, or you can share the link to the channel so that they can join directly.
+Once you have added someone, they can either join your channel by clicking on it in their Julia sidebar, or you can share the link to the channel so that they can join directly.
 
 ## Livestreaming & Guests
 

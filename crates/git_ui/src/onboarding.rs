@@ -131,7 +131,7 @@ impl Render for GitOnboardingModal {
             .full_width()
             .on_click(cx.listener(Self::view_blog));
 
-        let copy = "First-class support for staging, committing, pulling, pushing, viewing diffs, and more. All without leaving Zed.";
+        let copy = "First-class support for staging, committing, pulling, pushing, viewing diffs, and more. All without leaving Julia.";
 
         base.child(Label::new(copy).color(Color::Muted)).child(
             v_flex()

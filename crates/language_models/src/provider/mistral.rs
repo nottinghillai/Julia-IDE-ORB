@@ -437,7 +437,7 @@ pub fn into_mistral(
                             let tool_content = match &tool_result.content {
                                 LanguageModelToolResultContent::Text(text) => text.to_string(),
                                 LanguageModelToolResultContent::Image(_) => {
-                                    "[Tool responded with an image, but Zed doesn't support these in Mistral models yet]".to_string()
+                                    "[Tool responded with an image, but Julia doesn't support these in Mistral models yet]".to_string()
                                 }
                             };
                             messages.push(mistral::RequestMessage::Tool {
@@ -871,7 +871,7 @@ impl ConfigurationView {
             state
                 .update(cx, |state, cx| state.set_codestral_api_key(None, cx))?
                 .await?;
-            cx.update(|_window, cx| set_edit_prediction_provider(EditPredictionProvider::Zed, cx))
+            cx.update(|_window, cx| set_edit_prediction_provider(EditPredictionProvider::Julia, cx))
         })
         .detach_and_log_err(cx);
     }
@@ -912,7 +912,7 @@ impl ConfigurationView {
                 .child(self.codestral_api_key_editor.clone())
                 .child(
                     Label::new(
-                        format!("You can also assign the {CODESTRAL_API_KEY_ENV_VAR_NAME} environment variable and restart Zed."),
+                        format!("You can also assign the {CODESTRAL_API_KEY_ENV_VAR_NAME} environment variable and restart Julia."),
                     )
                     .size(LabelSize::Small).color(Color::Muted),
                 ).into_any()
@@ -954,7 +954,7 @@ impl Render for ConfigurationView {
             v_flex()
                 .size_full()
                 .on_action(cx.listener(Self::save_api_key))
-                .child(Label::new("To use Zed's agent with Mistral, you need to add an API key. Follow these steps:"))
+                .child(Label::new("To use Julia's agent with Mistral, you need to add an API key. Follow these steps:"))
                 .child(
                     List::new()
                         .child(InstructionListItem::new(
@@ -972,7 +972,7 @@ impl Render for ConfigurationView {
                 .child(self.api_key_editor.clone())
                 .child(
                     Label::new(
-                        format!("You can also assign the {API_KEY_ENV_VAR_NAME} environment variable and restart Zed."),
+                        format!("You can also assign the {API_KEY_ENV_VAR_NAME} environment variable and restart Julia."),
                     )
                     .size(LabelSize::Small).color(Color::Muted),
                 )

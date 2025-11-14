@@ -86,9 +86,9 @@ pub const CONNECTION_TIMEOUT: Duration = Duration::from_secs(20);
 actions!(
     client,
     [
-        /// Signs in to Zed account.
+        /// Signs in to Julia account.
         SignIn,
-        /// Signs out of Zed account.
+        /// Signs out of Julia account.
         SignOut,
         /// Reconnects to the collaboration server.
         Reconnect
@@ -952,7 +952,7 @@ impl Client {
 
     /// Performs a sign-in and also (optionally) connects to Collab.
     ///
-    /// Only Zed staff automatically connect to Collab.
+    /// Only Julia staff automatically connect to Collab.
     pub async fn sign_in_with_optional_connect(
         self: &Arc<Self>,
         try_provider: bool,
@@ -1386,13 +1386,13 @@ impl Client {
                         }
                     }
 
-                    // Start an HTTP server to receive the redirect from Zed's sign-in page.
+                    // Start an HTTP server to receive the redirect from Julia's sign-in page.
                     let server =
                         tiny_http::Server::http("127.0.0.1:0").expect("failed to find open port");
                     let port = server.server_addr().port();
 
-                    // Open the Zed sign-in page in the user's browser, with query parameters that indicate
-                    // that the user is signing in from a Zed app running on the same device.
+                    // Open the Julia sign-in page in the user's browser, with query parameters that indicate
+                    // that the user is signing in from a Julia app running on the same device.
                     let mut url = http.build_url(&format!(
                         "/native_app_signin?native_app_port={}&native_app_public_key={}",
                         port, public_key_string
@@ -1728,9 +1728,9 @@ impl ProtoClient for Client {
 /// prefix for the zed:// url scheme
 pub const ZED_URL_SCHEME: &str = "zed";
 
-/// Parses the given link into a Zed link.
+/// Parses the given link into a Julia link.
 ///
-/// Returns a [`Some`] containing the unprefixed link if the link is a Zed link.
+/// Returns a [`Some`] containing the unprefixed link if the link is a Julia link.
 /// Returns [`None`] otherwise.
 pub fn parse_zed_link<'a>(link: &'a str, cx: &App) -> Option<&'a str> {
     let server_url = &ClientSettings::get_global(cx).server_url;

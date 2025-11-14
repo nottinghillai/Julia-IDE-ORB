@@ -184,7 +184,7 @@ fn main() {
             cx.open_window(window_options, |_, cx| {
                 cx.new(|_| ImageShowcase {
                     // Relative path to your root project path
-                    local_resource: manifest_dir.join("examples/image/app-icon.png").into(),
+                    local_resource: manifest_dir.join("examples/image/julia-icon.png").into(),
                     remote_resource: "https://picsum.photos/800/400".into(),
                     asset_resource: "image/color.svg".into(),
                 })

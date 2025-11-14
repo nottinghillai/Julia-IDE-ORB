@@ -1,4 +1,4 @@
-name = "Zed Keybind Context"
+name = "Julia Keybind Context"
 grammar = "rust"
 autoclose_before = ")"
 brackets = [

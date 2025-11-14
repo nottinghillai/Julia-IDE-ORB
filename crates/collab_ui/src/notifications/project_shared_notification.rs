@@ -137,7 +137,7 @@ impl Render for ProjectSharedNotification {
             )
             .child(Label::new(self.owner.github_login.clone()))
             .child(Label::new(format!(
-                "is sharing a project in Zed{}",
+                "is sharing a project in Julia{}",
                 if self.worktree_root_names.is_empty() {
                     ""
                 } else {

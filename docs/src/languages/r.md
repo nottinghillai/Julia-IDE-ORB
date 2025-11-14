@@ -1,6 +1,6 @@
 # R
 
-R support is available via multiple R Zed extensions:
+R support is available via multiple R Julia extensions:
 
 - [ocsmit/zed-r](https://github.com/ocsmit/zed-r)
 
@@ -20,7 +20,7 @@ install.packages("languageserver")
 install.packages("lintr")
 ```
 
-3. Install the [ocsmit/zed-r](https://github.com/ocsmit/zed-r) through Zed's extensions manager.
+3. Install the [ocsmit/zed-r](https://github.com/ocsmit/zed-r) through Julia's extensions manager.
 
 For example on macOS:
 
@@ -68,7 +68,7 @@ TBD: Get this working
 
 ### REditorSupport/languageserver Configuration
 
-You can configure the [R languageserver settings](https://github.com/REditorSupport/languageserver#settings) via Zed Project Settings `.zed/settings.json` or Zed User Settings `~/.config/zed/settings.json`:
+You can configure the [R languageserver settings](https://github.com/REditorSupport/languageserver#settings) via Julia Project Settings `.zed/settings.json` or Julia User Settings `~/.config/zed/settings.json`:
 
 For example to disable Lintr linting and suppress code snippet suggestions (both enabled by default):
 
@@ -98,7 +98,7 @@ TBD: R REPL Docs
 
 ### Ark Installation
 
-To use the Zed REPL with R you need to install [Ark](https://github.com/posit-dev/ark), an R Kernel for Jupyter applications.
+To use the Julia REPL with R you need to install [Ark](https://github.com/posit-dev/ark), an R Kernel for Jupyter applications.
 You can down the latest version from the [Ark GitHub Releases](https://github.com/posit-dev/ark/releases) and then extract the `ark` binary to a directory in your `PATH`.
 
 For example to install the latest non-debug build:

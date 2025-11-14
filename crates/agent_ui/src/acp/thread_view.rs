@@ -28,7 +28,7 @@ use gpui::{
     CursorStyle, EdgesRefinement, ElementId, Empty, Entity, FocusHandle, Focusable, Hsla, Length,
     ListOffset, ListState, PlatformDisplay, SharedString, StyleRefinement, Subscription, Task,
     TextStyle, TextStyleRefinement, UnderlineStyle, WeakEntity, Window, WindowHandle, div,
-    ease_in_out, linear_color_stop, linear_gradient, list, point, pulsating_between,
+    ease_in_out, linear_color_stop, linear_gradient, list, point, pulsating_between, relative,
 };
 use language::Buffer;
 
@@ -47,8 +47,8 @@ use terminal_view::terminal_panel::TerminalPanel;
 use text::Anchor;
 use theme::{AgentFontSize, ThemeSettings};
 use ui::{
-    Callout, CommonAnimationExt, Disclosure, Divider, DividerColor, ElevationIndex, KeyBinding,
-    PopoverMenuHandle, SpinnerLabel, TintColor, Tooltip, WithScrollbar, prelude::*,
+    Avatar, Callout, CommonAnimationExt, Disclosure, Divider, DividerColor, ElevationIndex,
+    KeyBinding, PopoverMenuHandle, SpinnerLabel, TintColor, Tooltip, WithScrollbar, prelude::*,
 };
 use util::{ResultExt, size::format_file_size, time::duration_alt_display};
 use workspace::{CollaboratorId, Workspace};
@@ -143,6 +143,28 @@ struct ThreadFeedbackState {
     feedback: Option<ThreadFeedback>,
     comments_editor: Option<Entity<Editor>>,
 }
+
+struct TeamMember {
+    name: &'static str,
+    photo_path: &'static str,
+}
+
+impl TeamMember {
+    const fn new(name: &'static str, photo_path: &'static str) -> Self {
+        Self { name, photo_path }
+    }
+}
+
+const TEAM_MEMBERS: [TeamMember; 8] = [
+    TeamMember::new("Ada", "photos/Ada.jpg"),
+    TeamMember::new("Eva", "photos/Eva.jpg"),
+    TeamMember::new("Harper", "photos/Harper.jpg"),
+    TeamMember::new("Hiro", "photos/Hiro.jpg"),
+    TeamMember::new("Jess", "photos/Jess.jpg"),
+    TeamMember::new("Jim", "photos/Jim.jpg"),
+    TeamMember::new("Maya", "photos/Maya.jpg"),
+    TeamMember::new("Seal", "photos/Seal.jpg"),
+];
 
 impl ThreadFeedbackState {
     pub fn submit(
@@ -263,6 +285,7 @@ impl ThreadFeedbackState {
 
 pub struct AcpThreadView {
     agent: Rc<dyn AgentServer>,
+    agent_display_name: SharedString,
     workspace: WeakEntity<Workspace>,
     project: Entity<Project>,
     thread_state: ThreadState,
@@ -337,44 +360,65 @@ impl AcpThreadView {
         let prompt_capabilities = Rc::new(RefCell::new(acp::PromptCapabilities::default()));
         let available_commands = Rc::new(RefCell::new(vec![]));
 
-        let placeholder = placeholder_text(agent.name().as_ref(), false);
+        let agent_display_name = sanitize_agent_name(agent.name());
+        let placeholder = placeholder_text(agent_display_name.as_ref(), false);
 
-        let message_editor = cx.new(|cx| {
-            let mut editor = MessageEditor::new(
-                workspace.clone(),
-                project.clone(),
-                history_store.clone(),
-                prompt_store.clone(),
-                prompt_capabilities.clone(),
-                available_commands.clone(),
-                agent.name(),
-                &placeholder,
-                editor::EditorMode::AutoHeight {
-                    min_lines: AgentSettings::get_global(cx).message_editor_min_lines,
-                    max_lines: Some(AgentSettings::get_global(cx).set_message_editor_max_lines()),
-                },
-                window,
-                cx,
-            );
-            if let Some(entry) = summarize_thread {
-                editor.insert_thread_summary(entry, window, cx);
-            }
-            editor
-        });
+        let workspace_for_editor = workspace.clone();
+        let project_for_editor = project.clone();
+        let history_store_for_editor = history_store.clone();
+        let prompt_store_for_editor = prompt_store.clone();
+        let prompt_capabilities_for_editor = prompt_capabilities.clone();
+        let available_commands_for_editor = available_commands.clone();
+        let summarize_thread_for_editor = summarize_thread.clone();
+        let placeholder_clone = placeholder.clone();
+        let message_editor = {
+            let agent_display_name = agent_display_name.clone();
+            cx.new(|cx| {
+                let mut editor = MessageEditor::new(
+                    workspace_for_editor.clone(),
+                    project_for_editor.clone(),
+                    history_store_for_editor.clone(),
+                    prompt_store_for_editor.clone(),
+                    prompt_capabilities_for_editor.clone(),
+                    available_commands_for_editor.clone(),
+                    agent_display_name.clone(),
+                    &placeholder_clone,
+                    editor::EditorMode::AutoHeight {
+                        min_lines: AgentSettings::get_global(cx).message_editor_min_lines,
+                        max_lines: Some(AgentSettings::get_global(cx).set_message_editor_max_lines()),
+                    },
+                    window,
+                    cx,
+                );
+                if let Some(entry) = summarize_thread_for_editor.clone() {
+                    editor.insert_thread_summary(entry, window, cx);
+                }
+                editor
+            })
+        };
 
         let list_state = ListState::new(0, gpui::ListAlignment::Bottom, px(2048.0));
 
-        let entry_view_state = cx.new(|_| {
-            EntryViewState::new(
-                workspace.clone(),
-                project.clone(),
-                history_store.clone(),
-                prompt_store.clone(),
-                prompt_capabilities.clone(),
-                available_commands.clone(),
-                agent.name(),
-            )
-        });
+        let workspace_clone = workspace.clone();
+        let project_clone = project.clone();
+        let history_store_clone = history_store.clone();
+        let prompt_store_clone = prompt_store.clone();
+        let prompt_capabilities_clone = prompt_capabilities.clone();
+        let available_commands_clone = available_commands.clone();
+        let entry_view_state = {
+            let agent_display_name = agent_display_name.clone();
+            cx.new(move |_| {
+                EntryViewState::new(
+                    workspace_clone.clone(),
+                    project_clone.clone(),
+                    history_store_clone.clone(),
+                    prompt_store_clone.clone(),
+                    prompt_capabilities_clone.clone(),
+                    available_commands_clone.clone(),
+                    agent_display_name.clone(),
+                )
+            })
+        };
 
         let agent_server_store = project.read(cx).agent_server_store().clone();
         let subscriptions = [
@@ -394,6 +438,7 @@ impl AcpThreadView {
 
         Self {
             agent: agent.clone(),
+            agent_display_name,
             workspace: workspace.clone(),
             project: project.clone(),
             entry_view_state,
@@ -710,7 +755,7 @@ impl AcpThreadView {
         window: &mut Window,
         cx: &mut App,
     ) {
-        let agent_name = agent.name();
+        let agent_name = sanitize_agent_name(agent.name());
         let (configuration_view, subscription) = if let Some(provider_id) = err.provider_id {
             let registry = LanguageModelRegistry::global(cx);
 
@@ -829,12 +874,18 @@ impl AcpThreadView {
             ThreadState::Ready { .. } | ThreadState::Unauthenticated { .. } => "New Thread".into(),
             ThreadState::Loading(loading_view) => loading_view.read(cx).title.clone(),
             ThreadState::LoadError(error) => match error {
-                LoadError::Unsupported { .. } => format!("Upgrade {}", self.agent.name()).into(),
-                LoadError::FailedToInstall(_) => {
-                    format!("Failed to Install {}", self.agent.name()).into()
+                LoadError::Unsupported { .. } => {
+                    format!("Upgrade {}", self.agent_display_name.as_ref()).into()
                 }
-                LoadError::Exited { .. } => format!("{} Exited", self.agent.name()).into(),
-                LoadError::Other(_) => format!("Error Loading {}", self.agent.name()).into(),
+                LoadError::FailedToInstall(_) => {
+                    format!("Failed to Install {}", self.agent_display_name.as_ref()).into()
+                }
+                LoadError::Exited { .. } => {
+                    format!("{} Exited", self.agent_display_name.as_ref()).into()
+                }
+                LoadError::Other(_) => {
+                    format!("Error Loading {}", self.agent_display_name.as_ref()).into()
+                }
             },
         }
     }
@@ -1447,7 +1498,8 @@ impl AcpThreadView {
                 let has_commands = !available_commands.is_empty();
                 self.available_commands.replace(available_commands);
 
-                let new_placeholder = placeholder_text(self.agent.name().as_ref(), has_commands);
+                let new_placeholder =
+                    placeholder_text(self.agent_display_name.as_ref(), has_commands);
 
                 self.message_editor.update(cx, |editor, cx| {
                     editor.set_placeholder_text(&new_placeholder, window, cx);
@@ -1661,7 +1713,7 @@ impl AcpThreadView {
                         this,
                         AuthRequired {
                             description: Some(
-                                "GOOGLE_API_KEY must be set in the environment to use Vertex AI authentication for Gemini CLI. Please export it and restart Zed."
+                                "GOOGLE_API_KEY must be set in the environment to use Vertex AI authentication for Gemini CLI. Please export it and restart Julia."
                                     .to_owned(),
                             ),
                             provider_id: None,
@@ -1749,7 +1801,7 @@ impl AcpThreadView {
         window.spawn(cx, async move |cx| {
             let mut task = login.clone();
             if let Some(cmd) = &task.command {
-                // Have "node" command use Zed's managed Node runtime by default
+                // Have "node" command use Julia's managed Node runtime by default
                 if cmd == "node" {
                     let resolved_node_runtime = project
                         .update(cx, |project, cx| {
@@ -1928,7 +1980,7 @@ impl AcpThreadView {
                     .as_ref()
                     .is_some_and(|checkpoint| checkpoint.show);
 
-                let agent_name = self.agent.name();
+                let agent_name = self.agent_display_name.clone();
 
                 v_flex()
                     .id(("user_message", entry_ix))
@@ -3410,7 +3462,7 @@ impl AcpThreadView {
                     el.child(
                         Label::new(format!(
                             "You are not currently authenticated with {}.{}",
-                            self.agent.name(),
+                            self.agent_display_name.as_ref(),
                             if auth_methods.len() > 1 {
                                 " Please choose one of the following options:"
                             } else {
@@ -3551,7 +3603,10 @@ impl AcpThreadView {
         cx: &mut Context<Self>,
     ) -> AnyElement {
         let (heading_label, description_label) = (
-            format!("Upgrade {} to work with Zed", self.agent.name()),
+            format!(
+                "Upgrade {} to work with Julia",
+                self.agent_display_name.as_ref()
+            ),
             if version.is_empty() {
                 format!(
                     "Currently using {}, which does not report a valid --version",
@@ -4091,6 +4146,49 @@ impl AcpThreadView {
         ))
     }
 
+    fn render_team_members(&self, cx: &mut Context<Self>) -> AnyElement {
+        let avatar_size = rems(2.5);
+        let border_color = cx.theme().colors().border;
+
+        v_flex()
+            .p_2()
+            .gap_2()
+            .border_b_1()
+            .border_color(border_color)
+            .bg(cx.theme().colors().panel_background)
+            .children(
+                TEAM_MEMBERS
+                    .chunks(4)
+                    .map(|row| {
+                        h_flex()
+                            .gap_2()
+                            .justify_center()
+                            .w_full()
+                            .children(row.iter().map(|member| {
+                                v_flex()
+                                    .gap_1()
+                                    .items_center()
+                                    .px_1()
+                                    .py_1()
+                                    .flex_shrink_0()
+                                    .flex_1()
+                                    .max_w(relative(0.25))
+                                    .child(
+                                        Avatar::new(member.photo_path)
+                                            .size(avatar_size)
+                                            .border_color(border_color),
+                                    )
+                                    .child(
+                                        Label::new(member.name)
+                                            .size(LabelSize::XSmall)
+                                            .color(Color::Muted),
+                                    )
+                            }))
+                    })
+            )
+            .into_any_element()
+    }
+
     fn render_message_editor(&mut self, window: &mut Window, cx: &mut Context<Self>) -> AnyElement {
         let focus_handle = self.message_editor.focus_handle(cx);
         let editor_bg_color = cx.theme().colors().editor_background;
@@ -4469,17 +4567,18 @@ impl AcpThreadView {
         let following = self.is_following(cx);
 
         let tooltip_label = if following {
-            if self.agent.name() == "Zed Agent" {
-                format!("Stop Following the {}", self.agent.name())
+            if self.agent_display_name.as_ref() == "Julia Agent" {
+                format!(
+                    "Stop Following the {}",
+                    self.agent_display_name.as_ref()
+                )
             } else {
-                format!("Stop Following {}", self.agent.name())
+                format!("Stop Following {}", self.agent_display_name.as_ref())
             }
+        } else if self.agent_display_name.as_ref() == "Julia Agent" {
+            format!("Follow the {}", self.agent_display_name.as_ref())
         } else {
-            if self.agent.name() == "Zed Agent" {
-                format!("Follow the {}", self.agent.name())
-            } else {
-                format!("Follow {}", self.agent.name())
-            }
+            format!("Follow {}", self.agent_display_name.as_ref())
         };
 
         IconButton::new("follow-agent", IconName::Crosshair)
@@ -4830,7 +4929,7 @@ impl AcpThreadView {
         }
 
         // TODO: Change this once we have title summarization for external agents.
-        let title = self.agent.name();
+        let title = self.agent_display_name.clone();
 
         match settings.notify_when_agent_waiting {
             NotifyWhenAgentWaiting::PrimaryScreen => {
@@ -4891,7 +4990,7 @@ impl AcpThreadView {
 
                             let workspace_handle = this.workspace.clone();
 
-                            // If there are multiple Zed windows, activate the correct one.
+                            // If there are multiple Julia windows, activate the correct one.
                             cx.defer(move |cx| {
                                 handle
                                     .update(cx, |_view, window, _cx| {
@@ -5032,7 +5131,7 @@ impl AcpThreadView {
                                 "We appreciate your feedback and will use it to improve."
                             }
                             None => {
-                                "Rating the thread sends all of your current conversation to the Zed team."
+                                "Rating the thread sends all of your current conversation to the Julia team."
                             }
                         })
                         .color(Color::Muted)
@@ -5400,7 +5499,7 @@ impl AcpThreadView {
     }
 
     fn current_model_name(&self, cx: &App) -> SharedString {
-        // For native agent (Zed Agent), use the specific model name (e.g., "Claude 3.5 Sonnet")
+        // For native agent (Julia Agent), use the specific model name (e.g., "Claude 3.5 Sonnet")
         // For ACP agents, use the agent name (e.g., "Claude Code", "Gemini CLI")
         // This provides better clarity about what refused the request
         if self.as_native_connection(cx).is_some() {
@@ -5411,7 +5510,7 @@ impl AcpThreadView {
                 .unwrap_or_else(|| SharedString::from("The model"))
         } else {
             // ACP agent - use the agent name (e.g., "Claude Code", "Gemini CLI")
-            self.agent.name()
+            self.agent_display_name.clone()
         }
     }
 
@@ -5484,7 +5583,7 @@ impl AcpThreadView {
 
     fn render_payment_required_error(&self, cx: &mut Context<Self>) -> Callout {
         const ERROR_MESSAGE: &str =
-            "You reached your free usage limit. Upgrade to Zed Pro for more prompts.";
+            "You reached your free usage limit. Upgrade to Julia Pro for more prompts.";
 
         Callout::new()
             .severity(Severity::Error)
@@ -5529,7 +5628,7 @@ impl AcpThreadView {
                 "Upgrade to usage-based billing for more prompts."
             }
             cloud_llm_client::Plan::V1(PlanV1::ZedProTrial)
-            | cloud_llm_client::Plan::V1(PlanV1::ZedFree) => "Upgrade to Zed Pro for more prompts.",
+            | cloud_llm_client::Plan::V1(PlanV1::ZedFree) => "Upgrade to Julia Pro for more prompts.",
             cloud_llm_client::Plan::V2(_) => "",
         };
 
@@ -5728,8 +5827,16 @@ fn loading_contents_spinner(size: IconSize) -> AnyElement {
         .into_any_element()
 }
 
+fn sanitize_agent_name(name: SharedString) -> SharedString {
+    if name.contains("Zed") {
+        name.replace("Zed", "Julia").into()
+    } else {
+        name
+    }
+}
+
 fn placeholder_text(agent_name: &str, has_commands: bool) -> String {
-    if agent_name == "Zed Agent" {
+    if agent_name == "Julia Agent" {
         format!("Message the {} — @ to include context", agent_name)
     } else if has_commands {
         format!(
@@ -5799,6 +5906,7 @@ impl Render for AcpThreadView {
                     .child(self.render_load_error(e, window, cx))
                     .into_any(),
                 ThreadState::Ready { .. } => v_flex().flex_1().map(|this| {
+                    let this = this.child(self.render_team_members(cx));
                     if has_messages {
                         this.child(
                             list(
