@@ -588,6 +588,8 @@ mod tests {
                 context_server_registry,
                 Templates::new(),
                 Some(model),
+                None,
+                None,
                 cx,
             )
         });
@@ -784,6 +786,8 @@ mod tests {
                 context_server_registry,
                 Templates::new(),
                 Some(model.clone()),
+                None,
+                None,
                 cx,
             )
         });
@@ -925,6 +929,8 @@ mod tests {
                 context_server_registry,
                 Templates::new(),
                 Some(model.clone()),
+                None,
+                None,
                 cx,
             )
         });
@@ -1058,6 +1064,8 @@ mod tests {
                 context_server_registry,
                 Templates::new(),
                 Some(model.clone()),
+                None,
+                None,
                 cx,
             )
         });
@@ -1199,6 +1207,8 @@ mod tests {
                 context_server_registry,
                 Templates::new(),
                 Some(model.clone()),
+                None,
+                None,
                 cx,
             )
         });
@@ -1312,6 +1322,8 @@ mod tests {
                 context_server_registry.clone(),
                 Templates::new(),
                 Some(model.clone()),
+                None,
+                None,
                 cx,
             )
         });
@@ -1397,6 +1409,8 @@ mod tests {
                 context_server_registry.clone(),
                 Templates::new(),
                 Some(model.clone()),
+                None,
+                None,
                 cx,
             )
         });
@@ -1487,6 +1501,8 @@ mod tests {
                 context_server_registry.clone(),
                 Templates::new(),
                 Some(model.clone()),
+                None,
+                None,
                 cx,
             )
         });
@@ -1572,6 +1588,8 @@ mod tests {
                 context_server_registry,
                 Templates::new(),
                 Some(model.clone()),
+                None,
+                None,
                 cx,
             )
         });
@@ -1657,6 +1675,8 @@ mod tests {
                 context_server_registry.clone(),
                 Templates::new(),
                 Some(model.clone()),
+                None,
+                None,
                 cx,
             )
         });

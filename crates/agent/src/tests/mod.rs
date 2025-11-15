@@ -1808,7 +1808,7 @@ async fn test_building_request_with_pending_tools(cx: &mut TestAppContext) {
 
     // Ensure pending tools are skipped when building a request.
     let request = thread
-        .read_with(cx, |thread, cx| {
+        .update(cx, |thread, cx| {
             thread.build_completion_request(CompletionIntent::EditFile, cx)
         })
         .unwrap();
@@ -2448,6 +2448,8 @@ async fn setup(cx: &mut TestAppContext, model: TestModel) -> ThreadTest {
             context_server_registry,
             templates,
             Some(model.clone()),
+            None,
+            None,
             cx,
         )
     });

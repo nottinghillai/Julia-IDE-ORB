@@ -23,7 +23,11 @@ action_log.workspace = true
 agent-client-protocol.workspace = true
 agent_servers.workspace = true
 agent_settings.workspace = true
+agent_memory = { path = "../agent_memory" }
 anyhow.workspace = true
+hex = "0.4"
+sha2 = "0.10"
+toml = "0.8"
 assistant_text_thread.workspace = true
 chrono.workspace = true
 client.workspace = true

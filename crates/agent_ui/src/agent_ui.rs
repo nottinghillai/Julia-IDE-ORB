@@ -147,6 +147,15 @@ pub struct NewExternalAgentThread {
     agent: Option<ExternalAgent>,
 }
 
+/// Creates a new persona conversation thread.
+#[derive(Default, Clone, PartialEq, Deserialize, JsonSchema, Action)]
+#[action(namespace = agent)]
+#[serde(deny_unknown_fields)]
+pub struct NewPersonaThread {
+    /// Persona ID (e.g., "ada", "eva", "harper")
+    persona_id: String,
+}
+
 #[derive(Clone, PartialEq, Deserialize, JsonSchema, Action)]
 #[action(namespace = agent)]
 #[serde(deny_unknown_fields)]
@@ -200,6 +209,27 @@ impl ExternalAgent {
             Self::Custom { name, command: _ } => {
                 Rc::new(agent_servers::CustomAgentServer::new(name.clone()))
             }
+        }
+    }
+
+    /// Map ExternalAgent to AgentId
+    pub fn to_agent_id(&self) -> agent::AgentId {
+        match self {
+            Self::Gemini => agent::AgentId::from("gemini"),
+            Self::ClaudeCode => agent::AgentId::from("claude-code"),
+            Self::Codex => agent::AgentId::from("codex"),
+            Self::NativeAgent => agent::AgentId::from("native"),
+            Self::Custom { name, .. } => agent::AgentId::from(name.as_str()),
+        }
+    }
+
+    /// Map ExternalAgent to AgentType
+    pub fn to_agent_type(&self) -> agent::AgentType {
+        match self {
+            Self::Gemini | Self::ClaudeCode | Self::Codex | Self::NativeAgent => {
+                agent::AgentType::Builtin
+            }
+            Self::Custom { .. } => agent::AgentType::Custom,
         }
     }
 }

@@ -1,0 +1,10 @@
+[agent]
+id = "hiro"
+name = "Hiro"
+type = "builtin"
+version = "1.0.0"
+description = "Hiro - A technical and detail-focused persona"
+
+[agent.metadata]
+telemetry_id = "zed"
+

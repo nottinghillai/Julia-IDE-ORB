@@ -1,0 +1,10 @@
+[agent]
+id = "native"
+name = "Julia Agent"
+type = "builtin"
+version = "1.0.0"
+description = "Native Julia IDE agent"
+
+[agent.metadata]
+telemetry_id = "zed"
+

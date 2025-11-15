@@ -1,0 +1,10 @@
+[agent]
+id = "maya"
+name = "Maya"
+type = "builtin"
+version = "1.0.0"
+description = "Maya - A curious and exploratory persona"
+
+[agent.metadata]
+telemetry_id = "zed"
+

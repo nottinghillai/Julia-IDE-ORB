@@ -1,7 +1,10 @@
+mod agent_registry;
 mod db;
 mod edit_agent;
+mod embedding_queue;
 mod history_store;
 mod legacy_thread;
+mod message_extraction;
 mod native_agent_server;
 pub mod outline;
 mod templates;
@@ -13,6 +16,7 @@ mod tests;
 
 pub use db::*;
 pub use history_store::*;
+pub use message_extraction::{extract_message_text, extract_session_text};
 pub use native_agent_server::NativeAgentServer;
 pub use templates::*;
 pub use thread::*;
@@ -21,6 +25,7 @@ pub use tools::*;
 use acp_thread::{AcpThread, AgentModelSelector};
 use agent_client_protocol as acp;
 use anyhow::{Context as _, Result, anyhow};
+use agent_registry::AgentRegistry;
 use chrono::{DateTime, Utc};
 use collections::{HashSet, IndexMap};
 use fs::Fs;
@@ -67,6 +72,68 @@ pub struct RulesLoadingError {
     pub message: SharedString,
 }
 
+/// Unique identifier for an agent (built-in or custom)
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct AgentId(SharedString);
+
+impl AgentId {
+    pub fn new(id: impl Into<SharedString>) -> Self {
+        Self(id.into())
+    }
+
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+}
+
+impl From<&str> for AgentId {
+    fn from(s: &str) -> Self {
+        Self(SharedString::new(s.to_string()))
+    }
+}
+
+impl From<String> for AgentId {
+    fn from(s: String) -> Self {
+        Self(s.into())
+    }
+}
+
+impl std::fmt::Display for AgentId {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+/// Type of agent (built-in or custom)
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum AgentType {
+    Builtin,
+    Custom,
+}
+
+impl Default for AgentType {
+    fn default() -> Self {
+        Self::Builtin
+    }
+}
+
+#[derive(Clone)]
+struct EmbeddingResources {
+    vector_store: Arc<dyn agent_memory::VectorStore>,
+    generator: Arc<dyn agent_memory::EmbeddingGenerator>,
+    _queue: Arc<embedding_queue::EmbeddingQueue>,
+}
+
+#[cfg(feature = "embeddings")]
+fn create_embedding_generator() -> Arc<dyn agent_memory::EmbeddingGenerator> {
+    Arc::new(agent_memory::BgeEmbeddingGenerator::new(None))
+}
+
+#[cfg(not(feature = "embeddings"))]
+fn create_embedding_generator() -> Arc<dyn agent_memory::EmbeddingGenerator> {
+    Arc::new(agent_memory::PlaceholderEmbeddingGenerator)
+}
+
 /// Holds both the internal Thread and the AcpThread for a session
 struct Session {
     /// The internal thread that processes messages
@@ -75,6 +142,12 @@ struct Session {
     acp_thread: WeakEntity<acp_thread::AcpThread>,
     pending_save: Task<()>,
     _subscriptions: Vec<Subscription>,
+    /// Required agent identifier for this session
+    #[allow(dead_code)]
+    agent_id: AgentId,
+    /// Type of agent (built-in or custom)
+    #[allow(dead_code)]
+    agent_type: AgentType,
 }
 
 pub struct LanguageModels {
@@ -245,6 +318,8 @@ pub struct NativeAgent {
     prompt_store: Option<Entity<PromptStore>>,
     fs: Arc<dyn Fs>,
     _subscriptions: Vec<Subscription>,
+    embedding_resources: Option<Arc<EmbeddingResources>>,
+    _embedding_task: Task<()>,
 }
 
 impl NativeAgent {
@@ -257,6 +332,10 @@ impl NativeAgent {
         cx: &mut AsyncApp,
     ) -> Result<Entity<NativeAgent>> {
         log::debug!("Creating new NativeAgent");
+
+        if let Ok(registry) = AgentRegistry::new() {
+            registry.initialize().log_err();
+        }
 
         let project_context = cx
             .update(|cx| Self::build_project_context(&project, prompt_store.as_ref(), cx))?
@@ -276,6 +355,45 @@ impl NativeAgent {
 
             let (project_context_needs_refresh_tx, project_context_needs_refresh_rx) =
                 watch::channel(());
+
+            let database_future = ThreadsDatabase::connect(cx);
+            let embedding_task = cx.spawn({
+                let executor = cx.background_executor().clone();
+                let database_future = database_future.clone();
+                async move |this, cx| {
+                    let database = match database_future.await {
+                        Ok(db) => db,
+                        Err(err) => {
+                            log::error!("Failed to connect threads database: {}", err);
+                            return;
+                        }
+                    };
+
+                    let vector_store: Arc<dyn agent_memory::VectorStore> =
+                        Arc::new(database.vector_store());
+                    let generator = create_embedding_generator();
+                    let queue = Arc::new(embedding_queue::EmbeddingQueue::new(
+                        executor.clone(),
+                        database.connection().clone(),
+                        generator.clone(),
+                        vector_store.clone(),
+                    ));
+                    queue.start_worker();
+
+                    let resources = Arc::new(EmbeddingResources {
+                        vector_store,
+                        generator,
+                        _queue: queue,
+                    });
+
+                    this.update(cx, |agent, cx| {
+                        agent.embedding_resources = Some(resources.clone());
+                        agent.initialize_session_memories(cx);
+                    })
+                    .ok();
+                }
+            });
+            
             Self {
                 sessions: HashMap::new(),
                 history,
@@ -293,6 +411,8 @@ impl NativeAgent {
                 prompt_store,
                 fs,
                 _subscriptions: subscriptions,
+                embedding_resources: None,
+                _embedding_task: embedding_task,
             }
         })
     }
@@ -304,12 +424,19 @@ impl NativeAgent {
     ) -> Entity<AcpThread> {
         let connection = Rc::new(NativeAgentConnection(cx.entity()));
 
-        let thread = thread_handle.read(cx);
-        let session_id = thread.id().clone();
-        let title = thread.title();
-        let project = thread.project.clone();
-        let action_log = thread.action_log.clone();
-        let prompt_capabilities_rx = thread.prompt_capabilities_rx.clone();
+        let (session_id, title, project, action_log, prompt_capabilities_rx, agent_id, agent_type) = {
+            let thread = thread_handle.read(cx);
+            (
+                thread.id().clone(),
+                thread.title(),
+                thread.project.clone(),
+                thread.action_log.clone(),
+                thread.prompt_capabilities_rx.clone(),
+                thread.agent_id().clone(),
+                thread.agent_type(),
+            )
+        };
+        
         let acp_thread = cx.new(|cx| {
             acp_thread::AcpThread::new(
                 title,
@@ -346,16 +473,49 @@ impl NativeAgent {
             }),
         ];
 
+        let thread_entity = thread_handle.clone();
         self.sessions.insert(
             session_id,
             Session {
-                thread: thread_handle,
+                thread: thread_entity.clone(),
                 acp_thread: acp_thread.downgrade(),
                 _subscriptions: subscriptions,
                 pending_save: Task::ready(()),
+                agent_id,
+                agent_type,
             },
         );
+        self.initialize_session_memory_for_thread(&thread_entity, cx);
         acp_thread
+    }
+
+    fn initialize_session_memories(&mut self, cx: &mut Context<Self>) {
+        if let Some(resources) = &self.embedding_resources {
+            let generator = resources.generator.clone();
+            let vector_store = resources.vector_store.clone();
+            for session in self.sessions.values() {
+                let thread = session.thread.clone();
+                let generator = generator.clone();
+                let vector_store = vector_store.clone();
+                thread.update(cx, |thread, _| {
+                    thread.initialize_session_memory(generator, vector_store);
+                });
+            }
+        }
+    }
+
+    fn initialize_session_memory_for_thread(
+        &self,
+        thread: &Entity<Thread>,
+        cx: &mut Context<Self>,
+    ) {
+        if let Some(resources) = &self.embedding_resources {
+            let generator = resources.generator.clone();
+            let vector_store = resources.vector_store.clone();
+            let _ = thread.update(cx, |thread, _| {
+                thread.initialize_session_memory(generator, vector_store);
+            });
+        }
     }
 
     pub fn models(&self) -> &LanguageModels {
@@ -727,6 +887,27 @@ impl NativeAgent {
 pub struct NativeAgentConnection(pub Entity<NativeAgent>);
 
 impl NativeAgentConnection {
+    /// Map telemetry_id to AgentId
+    fn telemetry_id_to_agent_id(telemetry_id: &str) -> AgentId {
+        match telemetry_id {
+            "gemini-cli" => AgentId::from("gemini"),
+            "claude-code" => AgentId::from("claude-code"),
+            "codex" => AgentId::from("codex"),
+            "zed" => AgentId::from("native"),
+            _ => AgentId::from(telemetry_id), // Fallback to telemetry_id itself
+        }
+    }
+
+    /// Map telemetry_id to AgentType
+    fn telemetry_id_to_agent_type(telemetry_id: &str) -> AgentType {
+        match telemetry_id {
+            "gemini-cli" | "claude-code" | "codex" | "zed" => AgentType::Builtin,
+            _ => AgentType::Custom,
+        }
+    }
+}
+
+impl NativeAgentConnection {
     pub fn thread(&self, session_id: &acp::SessionId, cx: &App) -> Option<Entity<Thread>> {
         self.0
             .read(cx)
@@ -963,19 +1144,25 @@ impl acp_thread::AgentModelSelector for NativeAgentModelSelector {
     }
 }
 
-impl acp_thread::AgentConnection for NativeAgentConnection {
-    fn telemetry_id(&self) -> &'static str {
-        "zed"
-    }
-
-    fn new_thread(
+impl NativeAgentConnection {
+    /// Create a new thread with an optional agent_id override (for personas)
+    pub fn new_thread_with_agent_id(
         self: Rc<Self>,
         project: Entity<Project>,
         cwd: &Path,
+        agent_id_override: Option<AgentId>,
         cx: &mut App,
     ) -> Task<Result<Entity<acp_thread::AcpThread>>> {
         let agent = self.0.clone();
         log::debug!("Creating new thread for project at: {:?}", cwd);
+
+        // Use provided agent_id or extract from telemetry_id
+        // For NativeAgentConnection, telemetry_id is always "zed"
+        let (agent_id, agent_type) = if let Some(agent_id) = agent_id_override {
+            (agent_id, AgentType::Builtin) // Personas are builtin agents
+        } else {
+            (Self::telemetry_id_to_agent_id("zed"), Self::telemetry_id_to_agent_type("zed"))
+        };
 
         cx.spawn(async move |cx| {
             log::debug!("Starting thread creation in async context");
@@ -1002,6 +1189,8 @@ impl acp_thread::AgentConnection for NativeAgentConnection {
                             agent.context_server_registry.clone(),
                             agent.templates.clone(),
                             default_model,
+                            Some(agent_id.clone()),
+                            Some(agent_type),
                             cx,
                         )
                     }))
@@ -1009,6 +1198,22 @@ impl acp_thread::AgentConnection for NativeAgentConnection {
             )??;
             agent.update(cx, |agent, cx| agent.register_session(thread, cx))
         })
+    }
+
+}
+
+impl acp_thread::AgentConnection for NativeAgentConnection {
+    fn telemetry_id(&self) -> &'static str {
+        "zed"
+    }
+
+    fn new_thread(
+        self: Rc<Self>,
+        project: Entity<Project>,
+        cwd: &Path,
+        cx: &mut App,
+    ) -> Task<Result<Entity<acp_thread::AcpThread>>> {
+        self.new_thread_with_agent_id(project, cwd, None, cx)
     }
 
     fn auth_methods(&self) -> &[acp::AuthMethod] {

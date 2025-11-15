@@ -141,6 +141,14 @@ pub fn init(cx: &mut App) {
                         });
                     }
                 })
+                .register_action(|workspace, action: &crate::NewPersonaThread, window, cx| {
+                    if let Some(panel) = workspace.panel::<AgentPanel>(cx) {
+                        workspace.focus_panel::<AgentPanel>(window, cx);
+                        panel.update(cx, |panel, cx| {
+                            panel.new_persona_thread(&action.persona_id, window, cx)
+                        });
+                    }
+                })
                 .register_action(|workspace, action: &OpenRulesLibrary, window, cx| {
                     if let Some(panel) = workspace.panel::<AgentPanel>(cx) {
                         workspace.focus_panel::<AgentPanel>(window, cx);
@@ -1482,6 +1490,44 @@ impl AgentPanel {
             window,
             cx,
         );
+    }
+
+    fn new_persona_thread(
+        &mut self,
+        persona_id: &str,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        // Create a thread view with the persona_id
+        let workspace = self.workspace.clone();
+        let project = self.project.clone();
+        let fs = self.fs.clone();
+        let history = self.history_store.clone();
+        let persona_id = persona_id.to_string();
+
+        cx.spawn_in(window, async move |this, cx| {
+            let server = ExternalAgent::NativeAgent.server(fs, history);
+            
+            this.update_in(cx, |this, window, cx| {
+                let thread_view = cx.new(|cx| {
+                    crate::acp::AcpThreadView::new_with_persona(
+                        server,
+                        None,
+                        None,
+                        workspace.clone(),
+                        project,
+                        this.history_store.clone(),
+                        this.prompt_store.clone(),
+                        Some(persona_id),
+                        window,
+                        cx,
+                    )
+                });
+                
+                this.set_active_view(ActiveView::ExternalAgentThread { thread_view }, window, cx);
+            });
+        })
+        .detach();
     }
 }
 

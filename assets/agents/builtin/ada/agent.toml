@@ -1,0 +1,10 @@
+[agent]
+id = "ada"
+name = "Ada"
+type = "builtin"
+version = "1.0.0"
+description = "Ada - A thoughtful and analytical persona"
+
+[agent.metadata]
+telemetry_id = "zed"
+

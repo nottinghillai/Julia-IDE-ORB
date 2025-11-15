@@ -50,24 +50,40 @@ pub struct DbThread {
     pub completion_mode: Option<CompletionMode>,
     #[serde(default)]
     pub profile: Option<AgentProfileId>,
+    #[serde(default)]
+    pub agent_id: Option<crate::AgentId>,
+    #[serde(default)]
+    pub agent_type: Option<crate::AgentType>,
 }
 
 impl DbThread {
-    pub const VERSION: &'static str = "0.3.0";
+    pub const VERSION: &'static str = "0.4.0";
+    pub const PREVIOUS_VERSION: &'static str = "0.3.0";
 
     pub fn from_json(json: &[u8]) -> Result<Self> {
         let saved_thread_json = serde_json::from_slice::<serde_json::Value>(json)?;
-        match saved_thread_json.get("version") {
-            Some(serde_json::Value::String(version)) => match version.as_str() {
-                Self::VERSION => Ok(serde_json::from_value(saved_thread_json)?),
-                _ => Self::upgrade_from_agent_1(crate::legacy_thread::SerializedThread::from_json(
-                    json,
-                )?),
-            },
-            _ => {
-                Self::upgrade_from_agent_1(crate::legacy_thread::SerializedThread::from_json(json)?)
+        let mut thread: DbThread = match saved_thread_json.get("version") {
+            Some(serde_json::Value::String(version)) if version == Self::VERSION => {
+                serde_json::from_value(saved_thread_json)?
             }
+            Some(serde_json::Value::String(version)) if version.starts_with("0.3.") => {
+                serde_json::from_value(saved_thread_json)?
+            }
+            Some(_) | None => {
+                return Self::upgrade_from_agent_1(crate::legacy_thread::SerializedThread::from_json(
+                    json,
+                )?);
+            }
+        };
+
+        if thread.agent_id.is_none() {
+            thread.agent_id = Some(crate::AgentId::from("native"));
         }
+        if thread.agent_type.is_none() {
+            thread.agent_type = Some(crate::AgentType::Builtin);
+        }
+
+        Ok(thread)
     }
 
     fn upgrade_from_agent_1(thread: crate::legacy_thread::SerializedThread) -> Result<Self> {
@@ -207,6 +223,8 @@ impl DbThread {
             model: thread.model,
             completion_mode: thread.completion_mode,
             profile: thread.profile,
+            agent_id: Some(crate::AgentId::from("native")),
+            agent_type: Some(crate::AgentType::Builtin),
         })
     }
 }
@@ -304,12 +322,202 @@ impl ThreadsDatabase {
         "})?()
         .map_err(|e| anyhow!("Failed to create threads table: {}", e))?;
 
+        // Schema version tracking
+        connection.exec(indoc! {"
+            CREATE TABLE IF NOT EXISTS schema_versions (
+                domain TEXT PRIMARY KEY,
+                version INTEGER NOT NULL,
+                applied_at TEXT NOT NULL DEFAULT (datetime('now'))
+            )
+        "})?()
+        .map_err(|e| anyhow!("Failed to create schema_versions table: {}", e))?;
+
+        // Chat sessions table with foreign key to threads
+        connection.exec(indoc! {"
+            CREATE TABLE IF NOT EXISTS chat_sessions (
+                session_id TEXT PRIMARY KEY REFERENCES threads(id) ON DELETE CASCADE,
+                agent_id TEXT NOT NULL DEFAULT 'native',
+                agent_type TEXT NOT NULL DEFAULT 'builtin',
+                created_at TEXT NOT NULL DEFAULT (datetime('now')),
+                updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+                message_count INTEGER NOT NULL DEFAULT 0,
+                pending_embedding INTEGER NOT NULL DEFAULT 1,
+                schema_version INTEGER NOT NULL DEFAULT 1
+            )
+        "})?()
+        .map_err(|e| anyhow!("Failed to create chat_sessions table: {}", e))?;
+
+        connection.exec(indoc! {"
+            CREATE INDEX IF NOT EXISTS idx_chat_sessions_agent_id ON chat_sessions(agent_id)
+        "})?()
+        .map_err(|e| anyhow!("Failed to create idx_chat_sessions_agent_id: {}", e))?;
+
+        connection.exec(indoc! {"
+            CREATE INDEX IF NOT EXISTS idx_chat_sessions_agent_type ON chat_sessions(agent_type)
+        "})?()
+        .map_err(|e| anyhow!("Failed to create idx_chat_sessions_agent_type: {}", e))?;
+
+        connection.exec(indoc! {"
+            CREATE INDEX IF NOT EXISTS idx_chat_sessions_pending ON chat_sessions(pending_embedding) WHERE pending_embedding = 1
+        "})?()
+        .map_err(|e| anyhow!("Failed to create idx_chat_sessions_pending: {}", e))?;
+
+        // Session embeddings table
+        connection.exec(indoc! {"
+            CREATE TABLE IF NOT EXISTS session_embeddings (
+                session_id TEXT PRIMARY KEY REFERENCES chat_sessions(session_id) ON DELETE CASCADE,
+                embedding BLOB NOT NULL,
+                embedding_model TEXT NOT NULL DEFAULT 'bge-small-en-v1.5',
+                embedding_model_version TEXT NOT NULL DEFAULT '1.0',
+                embedding_dimension INTEGER NOT NULL DEFAULT 384,
+                content_hash TEXT,
+                created_at TEXT NOT NULL DEFAULT (datetime('now')),
+                updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+                schema_version INTEGER NOT NULL DEFAULT 1
+            )
+        "})?()
+        .map_err(|e| anyhow!("Failed to create session_embeddings table: {}", e))?;
+
+        connection.exec(indoc! {"
+            CREATE INDEX IF NOT EXISTS idx_session_embeddings_model ON session_embeddings(embedding_model, embedding_model_version)
+        "})?()
+        .map_err(|e| anyhow!("Failed to create idx_session_embeddings_model: {}", e))?;
+
+        // Message embeddings cache table
+        connection.exec(indoc! {"
+            CREATE TABLE IF NOT EXISTS message_embeddings (
+                content_hash TEXT PRIMARY KEY,
+                embedding BLOB NOT NULL,
+                embedding_model TEXT NOT NULL,
+                embedding_model_version TEXT NOT NULL DEFAULT '1.0',
+                embedding_dimension INTEGER NOT NULL,
+                created_at TEXT NOT NULL DEFAULT (datetime('now'))
+            )
+        "})?()
+        .map_err(|e| anyhow!("Failed to create message_embeddings table: {}", e))?;
+
+        connection.exec(indoc! {"
+            CREATE INDEX IF NOT EXISTS idx_message_embeddings_model ON message_embeddings(embedding_model, embedding_model_version)
+        "})?()
+        .map_err(|e| anyhow!("Failed to create idx_message_embeddings_model: {}", e))?;
+
+        // Agent global embeddings table
+        connection.exec(indoc! {"
+            CREATE TABLE IF NOT EXISTS agent_global_embeddings (
+                agent_id TEXT PRIMARY KEY,
+                agent_type TEXT NOT NULL,
+                embedding BLOB NOT NULL,
+                embedding_model TEXT NOT NULL DEFAULT 'bge-small-en-v1.5',
+                embedding_model_version TEXT NOT NULL DEFAULT '1.0',
+                embedding_dimension INTEGER NOT NULL DEFAULT 384,
+                session_count INTEGER NOT NULL DEFAULT 0,
+                aggregation_method TEXT NOT NULL DEFAULT 'mean',
+                updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+                schema_version INTEGER NOT NULL DEFAULT 1
+            )
+        "})?()
+        .map_err(|e| anyhow!("Failed to create agent_global_embeddings table: {}", e))?;
+
+        connection.exec(indoc! {"
+            CREATE INDEX IF NOT EXISTS idx_agent_global_agent_type ON agent_global_embeddings(agent_type)
+        "})?()
+        .map_err(|e| anyhow!("Failed to create idx_agent_global_agent_type: {}", e))?;
+
+        connection.exec(indoc! {"
+            CREATE INDEX IF NOT EXISTS idx_agent_global_model ON agent_global_embeddings(embedding_model, embedding_model_version)
+        "})?()
+        .map_err(|e| anyhow!("Failed to create idx_agent_global_model: {}", e))?;
+
+        // Embedding jobs queue table
+        connection.exec(indoc! {"
+            CREATE TABLE IF NOT EXISTS embedding_jobs (
+                job_id TEXT PRIMARY KEY,
+                session_id TEXT NOT NULL REFERENCES chat_sessions(session_id) ON DELETE CASCADE,
+                content_hash TEXT NOT NULL,
+                status TEXT NOT NULL DEFAULT 'pending',
+                retry_count INTEGER NOT NULL DEFAULT 0,
+                error_message TEXT,
+                created_at TEXT NOT NULL DEFAULT (datetime('now')),
+                updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+            )
+        "})?()
+        .map_err(|e| anyhow!("Failed to create embedding_jobs table: {}", e))?;
+
+        connection.exec(indoc! {"
+            CREATE INDEX IF NOT EXISTS idx_embedding_jobs_status ON embedding_jobs(status) WHERE status IN ('pending', 'processing')
+        "})?()
+        .map_err(|e| anyhow!("Failed to create idx_embedding_jobs_status: {}", e))?;
+
+        connection.exec(indoc! {"
+            CREATE INDEX IF NOT EXISTS idx_embedding_jobs_session ON embedding_jobs(session_id)
+        "})?()
+        .map_err(|e| anyhow!("Failed to create idx_embedding_jobs_session: {}", e))?;
+
         let db = Self {
             executor,
             connection: Arc::new(Mutex::new(connection)),
         };
 
+        // Run migration to backfill existing threads
+        db.migrate_existing_threads()?;
+
         Ok(db)
+    }
+
+    fn migrate_existing_threads(&self) -> Result<()> {
+        let connection = self.connection.lock();
+        
+        // Check if migration has already been run
+        let mut select = connection.select_bound::<(), (Arc<str>, i32)>(indoc! {"
+            SELECT domain, version FROM schema_versions WHERE domain = 'chat_sessions'
+        "})?;
+        
+        let rows = select(())?;
+        if rows.into_iter().next().is_some() {
+            // Migration already run
+            return Ok(());
+        }
+
+        // Get all existing thread IDs
+        let mut select_threads = connection.select_bound::<(), Arc<str>>(indoc! {"
+            SELECT id FROM threads
+        "})?;
+        
+        let thread_rows = select_threads(())?;
+        let thread_ids: Vec<Arc<str>> = thread_rows.into_iter().collect();
+
+        if thread_ids.is_empty() {
+            // No threads to migrate, just record schema version
+            connection.exec_bound::<(Arc<str>, i32)>(indoc! {"
+                INSERT OR REPLACE INTO schema_versions (domain, version) VALUES (?, ?)
+            "})?(("chat_sessions".into(), 1))?;
+            return Ok(());
+        }
+
+        // Migrate each thread in a transaction
+        connection.with_savepoint("migrate_threads", || {
+            let now = chrono::Utc::now().to_rfc3339();
+            for thread_id in &thread_ids {
+                let agent_id = "native";
+                let agent_type = "builtin";
+                let message_count = 0; // Will be updated on next save
+
+                connection.exec_bound::<(Arc<str>, &str, &str, &str, &str, i32, i32)>(indoc! {"
+                    INSERT OR IGNORE INTO chat_sessions 
+                    (session_id, agent_id, agent_type, created_at, updated_at, message_count, pending_embedding)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                "})?((thread_id.clone(), agent_id, agent_type, &now, &now, message_count, 1))?;
+            }
+
+            // Record schema version
+            connection.exec_bound::<(Arc<str>, i32)>(indoc! {"
+                INSERT OR REPLACE INTO schema_versions (domain, version) VALUES (?, ?)
+            "})?(("chat_sessions".into(), 1))?;
+
+            Ok(())
+        })?;
+
+        Ok(())
     }
 
     fn save_thread_sync(
@@ -328,13 +536,27 @@ impl ThreadsDatabase {
 
         let title = thread.title.to_string();
         let updated_at = thread.updated_at.to_rfc3339();
-        let json_data = serde_json::to_string(&SerializedThread {
+        let message_count = thread.messages.len() as i32;
+        let agent_id_str = thread.agent_id.as_ref().map(|id| id.as_str()).unwrap_or("native").to_string();
+        let agent_type_str = match thread.agent_type {
+            Some(crate::AgentType::Builtin) => "builtin",
+            Some(crate::AgentType::Custom) => "custom",
+            None => "builtin",
+        };
+        
+        // Clone thread for embedding extraction (before moving into SerializedThread)
+        let messages_for_embedding = thread.messages.clone();
+        
+        let thread_for_json = SerializedThread {
             thread,
             version: DbThread::VERSION,
-        })?;
+        };
+        let json_data = serde_json::to_string(&thread_for_json)?;
 
         let connection = connection.lock();
 
+        connection.with_savepoint("save_thread", || {
+            // Update threads table
         let compressed = zstd::encode_all(json_data.as_bytes(), COMPRESSION_LEVEL)?;
         let data_type = DataType::Zstd;
         let data = compressed;
@@ -343,7 +565,73 @@ impl ThreadsDatabase {
             INSERT OR REPLACE INTO threads (id, summary, updated_at, data_type, data) VALUES (?, ?, ?, ?, ?)
         "})?;
 
-        insert((id.0, title, updated_at, data_type, data))?;
+            insert((id.0.clone(), title.clone(), updated_at.clone(), data_type, data))?;
+
+            // Update chat_sessions table - use ON CONFLICT to preserve created_at and pending_embedding
+            let mut upsert_session = connection.exec_bound::<(Arc<str>, &str, &str, &str, i32)>(indoc! {"
+                INSERT INTO chat_sessions 
+                (session_id, agent_id, agent_type, updated_at, message_count)
+                VALUES (?, ?, ?, ?, ?)
+                ON CONFLICT(session_id) DO UPDATE SET
+                    agent_id = excluded.agent_id,
+                    agent_type = excluded.agent_type,
+                    updated_at = excluded.updated_at,
+                    message_count = excluded.message_count
+            "})?;
+
+            let session_id_str = id.0.to_string();
+            upsert_session((id.0, &agent_id_str, agent_type_str, &updated_at, message_count))?;
+
+            // Queue embedding job if messages exist
+            if message_count > 0 {
+                // Extract session text for embedding
+                let session_text = crate::extract_session_text(&messages_for_embedding);
+                if !session_text.is_empty() {
+                    let content_hash = agent_memory::embedding::content_hash(&session_text);
+                    
+                    // Check if embedding needs update by comparing content_hash
+                    // First get pending_embedding, then check content_hash separately
+                    let mut check_pending = connection.select_bound::<&str, i32>(indoc! {"
+                        SELECT pending_embedding FROM chat_sessions WHERE session_id = ? LIMIT 1
+                    "})?;
+                    
+                    let mut check_hash = connection.select_bound::<&str, Option<String>>(indoc! {"
+                        SELECT content_hash FROM session_embeddings WHERE session_id = ? LIMIT 1
+                    "})?;
+                    
+                    let pending = check_pending(&session_id_str)?.into_iter().next().unwrap_or(1);
+                    let stored_hash = check_hash(&session_id_str)?.into_iter().next().flatten();
+                    
+                    let needs_embedding = match (pending, stored_hash) {
+                        (0, Some(stored_hash)) => {
+                            // Has embedding - check if content hash changed
+                            stored_hash != content_hash
+                        }
+                        (1, _) => true,  // Pending
+                        (_, None) => true, // No embedding yet
+                        _ => true,              // New session
+                    };
+
+                    if needs_embedding {
+                        // Mark as pending
+                        connection.exec_bound::<&str>(indoc! {"
+                            UPDATE chat_sessions SET pending_embedding = 1 WHERE session_id = ?
+                        "})?(&session_id_str)?;
+
+                        // Queue embedding job
+                        let job_id = format!("{}-{}", session_id_str, content_hash);
+                        let now = chrono::Utc::now().to_rfc3339();
+                        connection.exec_bound::<(&str, &str, &str, &str, &str)>(indoc! {"
+                            INSERT OR IGNORE INTO embedding_jobs
+                            (job_id, session_id, content_hash, status, created_at, updated_at)
+                            VALUES (?, ?, ?, 'pending', ?, ?)
+                        "})?((&job_id, &session_id_str, &content_hash, &now, &now))?;
+                    }
+                }
+            }
+
+            Ok(())
+        })?;
 
         Ok(())
     }
@@ -421,5 +709,18 @@ impl ThreadsDatabase {
 
             Ok(())
         })
+    }
+
+    /// Get the database connection
+    pub fn connection(&self) -> &Arc<Mutex<Connection>> {
+        &self.connection
+    }
+
+    /// Create a vector store that uses this database's connection
+    pub fn vector_store(&self) -> agent_memory::SQLiteVectorStore {
+        agent_memory::SQLiteVectorStore::new(
+            self.executor.clone(),
+            self.connection.clone(),
+        )
     }
 }

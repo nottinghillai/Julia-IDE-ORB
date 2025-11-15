@@ -607,6 +607,14 @@ pub struct Thread {
     pub(crate) prompt_capabilities_rx: watch::Receiver<acp::PromptCapabilities>,
     pub(crate) project: Entity<Project>,
     pub(crate) action_log: Entity<ActionLog>,
+    /// Agent identifier for this thread
+    agent_id: crate::AgentId,
+    /// Agent type for this thread
+    agent_type: crate::AgentType,
+    /// Session memory for embeddings (lazy initialized)
+    session_memory: Option<Arc<agent_memory::SessionMemory>>,
+    /// Cached persona system prompt (loaded on first use)
+    persona_system_prompt: Option<SharedString>,
 }
 
 impl Thread {
@@ -626,12 +634,16 @@ impl Thread {
         context_server_registry: Entity<ContextServerRegistry>,
         templates: Arc<Templates>,
         model: Option<Arc<dyn LanguageModel>>,
+        agent_id: Option<crate::AgentId>,
+        agent_type: Option<crate::AgentType>,
         cx: &mut Context<Self>,
     ) -> Self {
         let profile_id = AgentSettings::get_global(cx).default_profile.clone();
         let action_log = cx.new(|_cx| ActionLog::new(project.clone()));
         let (prompt_capabilities_tx, prompt_capabilities_rx) =
             watch::channel(Self::prompt_capabilities(model.as_deref()));
+        let agent_id = agent_id.unwrap_or_else(|| crate::AgentId::from("native"));
+        let agent_type = agent_type.unwrap_or(crate::AgentType::Builtin);
         Self {
             id: acp::SessionId(uuid::Uuid::new_v4().to_string().into()),
             prompt_id: PromptId::new(),
@@ -665,11 +677,53 @@ impl Thread {
             prompt_capabilities_rx,
             project,
             action_log,
+            agent_id,
+            agent_type,
+            session_memory: None, // Lazy initialized when needed
+            persona_system_prompt: None, // Loaded on first use
         }
     }
 
     pub fn id(&self) -> &acp::SessionId {
         &self.id
+    }
+
+    pub fn initialize_session_memory(
+        &mut self,
+        generator: Arc<dyn agent_memory::EmbeddingGenerator>,
+        vector_store: Arc<dyn agent_memory::VectorStore>,
+    ) {
+        if self.session_memory.is_some() {
+            return;
+        }
+        let memory = agent_memory::SessionMemory::new(
+            self.id.0.to_string(),
+            generator,
+            vector_store,
+            None,
+        );
+        self.session_memory = Some(Arc::new(memory));
+    }
+
+    fn record_session_memory_text(&self, text: String, cx: &mut Context<Self>) {
+        if text.is_empty() {
+            return;
+        }
+        if let Some(session_memory) = self.session_memory.clone() {
+            cx.background_executor()
+                .spawn(async move {
+                    let _ = session_memory.add_message(&text).await;
+                })
+                .detach();
+        }
+    }
+
+    pub fn agent_id(&self) -> &crate::AgentId {
+        &self.agent_id
+    }
+
+    pub fn agent_type(&self) -> crate::AgentType {
+        self.agent_type.clone()
     }
 
     pub fn replay(
@@ -828,6 +882,8 @@ impl Thread {
 
         let action_log = cx.new(|_| ActionLog::new(project.clone()));
 
+        let agent_id = db_thread.agent_id.unwrap_or_else(|| crate::AgentId::from("native"));
+        let agent_type = db_thread.agent_type.unwrap_or(crate::AgentType::Builtin);
         Self {
             id,
             prompt_id: PromptId::new(),
@@ -841,6 +897,7 @@ impl Thread {
             summary: db_thread.detailed_summary,
             messages: db_thread.messages,
             user_store: project.read(cx).user_store(),
+            persona_system_prompt: None, // Loaded on first use
             completion_mode: db_thread.completion_mode.unwrap_or_default(),
             running_turn: None,
             pending_message: None,
@@ -860,11 +917,16 @@ impl Thread {
             updated_at: db_thread.updated_at,
             prompt_capabilities_tx,
             prompt_capabilities_rx,
+            agent_id,
+            agent_type,
+            session_memory: None, // Lazy initialized when needed
         }
     }
 
     pub fn to_db(&self, cx: &App) -> Task<DbThread> {
         let initial_project_snapshot = self.initial_project_snapshot.clone();
+        let agent_id = self.agent_id.clone();
+        let agent_type = self.agent_type.clone();
         let mut thread = DbThread {
             title: self.title(),
             messages: self.messages.clone(),
@@ -879,6 +941,8 @@ impl Thread {
             }),
             completion_mode: Some(self.completion_mode),
             profile: Some(self.profile_id.clone()),
+            agent_id: Some(agent_id),
+            agent_type: Some(agent_type),
         };
 
         cx.background_spawn(async move {
@@ -1146,8 +1210,10 @@ impl Thread {
         let content = content.into_iter().map(Into::into).collect::<Vec<_>>();
         log::debug!("Thread::send content: {:?}", content);
 
-        self.messages
-            .push(Message::User(UserMessage { id, content }));
+        let message = Message::User(UserMessage { id, content });
+        let memory_text = crate::extract_message_text(&message);
+        self.messages.push(message);
+        self.record_session_memory_text(memory_text, cx);
         cx.notify();
 
         log::debug!("Total messages in thread: {}", self.messages.len());
@@ -1834,18 +1900,22 @@ impl Thread {
             }
         }
 
-        self.messages.push(Message::Agent(message));
+        let message = Message::Agent(message);
+        let memory_text = crate::extract_message_text(&message);
+        self.messages.push(message);
+        self.record_session_memory_text(memory_text, cx);
         self.updated_at = Utc::now();
         self.clear_summary();
         cx.notify()
     }
 
     pub(crate) fn build_completion_request(
-        &self,
+        &mut self,
         completion_intent: CompletionIntent,
         cx: &App,
     ) -> Result<LanguageModelRequest> {
-        let model = self.model().context("No language model configured")?;
+        // Clone model to avoid borrow checker issues
+        let model = self.model().context("No language model configured")?.clone();
         let tools = if let Some(turn) = self.running_turn.as_ref() {
             turn.tools
                 .iter()
@@ -1885,7 +1955,7 @@ impl Thread {
             tools,
             tool_choice: None,
             stop: Vec::new(),
-            temperature: AgentSettings::temperature_for_model(model, cx),
+            temperature: AgentSettings::temperature_for_model(&model, cx),
             thinking_allowed: true,
         };
 
@@ -1966,7 +2036,7 @@ impl Thread {
     }
 
     fn build_request_messages(
-        &self,
+        &mut self,
         available_tools: Vec<SharedString>,
         cx: &App,
     ) -> Vec<LanguageModelRequestMessage> {
@@ -1975,7 +2045,17 @@ impl Thread {
             self.messages.len()
         );
 
-        let system_prompt = SystemPromptTemplate {
+        // Load persona system prompt if not cached
+        if self.persona_system_prompt.is_none() {
+            if let Ok(registry) = crate::agent_registry::AgentRegistry::new() {
+                if let Ok(Some(prompt)) = registry.load_system_prompt(&self.agent_id.0) {
+                    self.persona_system_prompt = Some(SharedString::from(prompt));
+                }
+            }
+        }
+
+        // Build base system prompt from template
+        let base_system_prompt = SystemPromptTemplate {
             project: self.project_context.read(cx),
             available_tools,
             model_name: self.model.as_ref().map(|m| m.name().0.to_string()),
@@ -1983,6 +2063,14 @@ impl Thread {
         .render(&self.templates)
         .context("failed to build system prompt")
         .expect("Invalid template");
+
+        // Combine persona prompt with base system prompt
+        let system_prompt = if let Some(ref persona_prompt) = self.persona_system_prompt {
+            format!("{}\n\n{}", persona_prompt, base_system_prompt)
+        } else {
+            base_system_prompt
+        };
+
         let mut messages = vec![LanguageModelRequestMessage {
             role: Role::System,
             content: vec![system_prompt.into()],

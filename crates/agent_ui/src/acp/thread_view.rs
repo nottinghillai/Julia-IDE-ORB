@@ -166,6 +166,11 @@ const TEAM_MEMBERS: [TeamMember; 8] = [
     TeamMember::new("Seal", "photos/Seal.jpg"),
 ];
 
+/// Map team member name to persona ID (lowercase)
+fn team_member_to_persona_id(name: &str) -> String {
+    name.to_lowercase()
+}
+
 impl ThreadFeedbackState {
     pub fn submit(
         &mut self,
@@ -319,6 +324,10 @@ pub struct AcpThreadView {
     _cancel_task: Option<Task<()>>,
     _subscriptions: [Subscription; 5],
     show_codex_windows_warning: bool,
+    /// Optional persona_id for persona threads
+    persona_id: Option<String>,
+    /// Active persona ID for UI indicator (when a persona is selected)
+    active_persona_id: Option<String>,
 }
 
 enum ThreadState {
@@ -354,6 +363,21 @@ impl AcpThreadView {
         project: Entity<Project>,
         history_store: Entity<HistoryStore>,
         prompt_store: Option<Entity<PromptStore>>,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) -> Self {
+        Self::new_with_persona(agent, resume_thread, summarize_thread, workspace, project, history_store, prompt_store, None, window, cx)
+    }
+
+    pub fn new_with_persona(
+        agent: Rc<dyn AgentServer>,
+        resume_thread: Option<DbThreadMetadata>,
+        summarize_thread: Option<DbThreadMetadata>,
+        workspace: WeakEntity<Workspace>,
+        project: Entity<Project>,
+        history_store: Entity<HistoryStore>,
+        prompt_store: Option<Entity<PromptStore>>,
+        persona_id: Option<String>,
         window: &mut Window,
         cx: &mut Context<Self>,
     ) -> Self {
@@ -442,6 +466,7 @@ impl AcpThreadView {
             workspace: workspace.clone(),
             project: project.clone(),
             entry_view_state,
+            active_persona_id: persona_id.clone(),
             thread_state: Self::initial_state(
                 agent.clone(),
                 resume_thread.clone(),
@@ -480,6 +505,7 @@ impl AcpThreadView {
             new_server_version_available: None,
             resume_thread_metadata: resume_thread,
             show_codex_windows_warning,
+            persona_id,
         }
     }
 
@@ -573,12 +599,37 @@ impl AcpThreadView {
                 .log_err()
             } else {
                 let root_dir = root_dir.unwrap_or(paths::home_dir().as_path().into());
-                cx.update(|_, cx| {
-                    connection
-                        .clone()
-                        .new_thread(project.clone(), &root_dir, cx)
-                })
-                .log_err()
+                // Check if we have a persona_id stored (for persona threads)
+                let persona_id = this.update(cx, |this, _| this.persona_id.clone()).ok().flatten();
+                if let Some(persona_id) = persona_id {
+                    // Use new_thread_with_agent_id for persona threads
+                    if let Some(native_connection) = connection.clone().downcast::<agent::NativeAgentConnection>() {
+                        let agent_id = agent::AgentId::from(persona_id.as_str());
+                        cx.update(|_, cx| {
+                            native_connection.new_thread_with_agent_id(
+                                project.clone(),
+                                &root_dir,
+                                Some(agent_id),
+                                cx,
+                            )
+                        })
+                        .log_err()
+                    } else {
+                        cx.update(|_, cx| {
+                            connection
+                                .clone()
+                                .new_thread(project.clone(), &root_dir, cx)
+                        })
+                        .log_err()
+                    }
+                } else {
+                    cx.update(|_, cx| {
+                        connection
+                            .clone()
+                            .new_thread(project.clone(), &root_dir, cx)
+                    })
+                    .log_err()
+                }
             };
 
             let Some(result) = result else {
@@ -4146,7 +4197,68 @@ impl AcpThreadView {
         ))
     }
 
+    fn render_active_persona_indicator(&self, persona_id: &str, cx: &mut Context<Self>) -> AnyElement {
+        // Find the team member matching this persona_id
+        let team_member = TEAM_MEMBERS
+            .iter()
+            .find(|member| team_member_to_persona_id(member.name) == persona_id);
+
+        let (name, photo_path) = if let Some(member) = team_member {
+            (SharedString::from(member.name), member.photo_path)
+        } else {
+            // Fallback if persona not found
+            (SharedString::from(persona_id.to_string()), "photos/placeholder.jpg")
+        };
+
+        let avatar_size = rems(2.0);
+        let border_color = cx.theme().colors().border;
+        let persona_id_clone = persona_id.to_string();
+
+        // Horizontal layout: avatar + name side by side
+        h_flex()
+            .id(SharedString::from(format!("active-persona-{}", persona_id)))
+            .absolute()
+            .top(rems(0.5))
+            .right(rems(0.5))
+            .gap_2()
+            .items_center()
+            .px_2()
+            .py_1()
+            .rounded_md()
+            .bg(cx.theme().colors().panel_background)
+            .border_1()
+            .border_color(border_color)
+            .cursor_pointer()
+            .hover(|s| s.bg(cx.theme().colors().element_hover.opacity(0.5)))
+            .on_click({
+                let persona_id = persona_id_clone.clone();
+                cx.listener(move |this, _event, window, cx| {
+                    // Clear active persona to show team members again
+                    this.active_persona_id = None;
+                    cx.notify();
+                })
+            })
+            .tooltip(Tooltip::text(format!("Click to view all team members")))
+            .child(
+                Avatar::new(photo_path)
+                    .size(avatar_size)
+                    .border_color(border_color),
+            )
+            .child(
+                Label::new(name)
+                    .size(LabelSize::Small)
+                    .color(Color::Default),
+            )
+            .into_any_element()
+    }
+
     fn render_team_members(&self, cx: &mut Context<Self>) -> AnyElement {
+        // If active persona is set, show indicator instead of grid
+        if let Some(ref active_persona_id) = self.active_persona_id {
+            return self.render_active_persona_indicator(active_persona_id, cx);
+        }
+
+        // Otherwise show the team members grid
         let avatar_size = rems(2.5);
         let border_color = cx.theme().colors().border;
 
@@ -4165,7 +4277,12 @@ impl AcpThreadView {
                             .justify_center()
                             .w_full()
                             .children(row.iter().map(|member| {
-                                v_flex()
+                                let persona_id = team_member_to_persona_id(member.name);
+                                let member_name = member.name.to_string();
+                                let persona_id_clone = persona_id.clone();
+                                div()
+                                    .id(SharedString::from(format!("persona-{}", persona_id)))
+                                    .flex()
                                     .gap_1()
                                     .items_center()
                                     .px_1()
@@ -4173,15 +4290,39 @@ impl AcpThreadView {
                                     .flex_shrink_0()
                                     .flex_1()
                                     .max_w(relative(0.25))
+                                    .cursor_pointer()
+                                    .hover(|s| s.bg(cx.theme().colors().element_hover.opacity(0.5)))
+                                    .rounded_xs()
+                                    .on_click({
+                                        let persona_id = persona_id_clone.clone();
+                                        cx.listener(move |this, _event, window, cx| {
+                                            // Set active persona and create thread
+                                            this.active_persona_id = Some(persona_id.clone());
+                                            cx.notify();
+                                            window.dispatch_action(
+                                                crate::NewPersonaThread {
+                                                    persona_id: persona_id.clone(),
+                                                }
+                                                .boxed_clone(),
+                                                cx,
+                                            );
+                                        })
+                                    })
+                                    .tooltip(Tooltip::text(format!("Start conversation with {}", member_name)))
                                     .child(
-                                        Avatar::new(member.photo_path)
-                                            .size(avatar_size)
-                                            .border_color(border_color),
-                                    )
-                                    .child(
-                                        Label::new(member.name)
-                                            .size(LabelSize::XSmall)
-                                            .color(Color::Muted),
+                                        v_flex()
+                                            .gap_1()
+                                            .items_center()
+                                            .child(
+                                                Avatar::new(member.photo_path)
+                                                    .size(avatar_size)
+                                                    .border_color(border_color),
+                                            )
+                                            .child(
+                                                Label::new(member.name)
+                                                    .size(LabelSize::XSmall)
+                                                    .color(Color::Muted),
+                                            )
                                     )
                             }))
                     })
@@ -5905,7 +6046,7 @@ impl Render for AcpThreadView {
                     .justify_end()
                     .child(self.render_load_error(e, window, cx))
                     .into_any(),
-                ThreadState::Ready { .. } => v_flex().flex_1().map(|this| {
+                ThreadState::Ready { .. } => v_flex().flex_1().relative().map(|this| {
                     let this = this.child(self.render_team_members(cx));
                     if has_messages {
                         this.child(

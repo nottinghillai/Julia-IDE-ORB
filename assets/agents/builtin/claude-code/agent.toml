@@ -1,0 +1,11 @@
+[agent]
+id = "claude-code"
+name = "Claude Code"
+type = "builtin"
+version = "1.0.0"
+description = "Anthropic Claude Code agent"
+
+[agent.metadata]
+icon = "ai-claude"
+telemetry_id = "claude-code"
+

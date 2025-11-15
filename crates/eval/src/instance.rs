@@ -315,7 +315,7 @@ impl ExampleInstance {
                     let db_thread = agent::DbThread::from_json(json.as_bytes()).expect("Can't read serialized thread");
                     cx.new(|cx| agent::Thread::from_db(session_id, db_thread, project.clone(), project_context, context_server_registry, agent::Templates::new(), cx))
                 } else {
-                    cx.new(|cx| agent::Thread::new(project.clone(), project_context, context_server_registry, agent::Templates::new(), None, cx))
+                    cx.new(|cx| agent::Thread::new(project.clone(), project_context, context_server_registry, agent::Templates::new(), None, None, cx))
                 };
 
                 thread.update(cx, |thread, cx| {

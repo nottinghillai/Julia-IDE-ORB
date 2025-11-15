@@ -1,0 +1,10 @@
+[agent]
+id = "harper"
+name = "Harper"
+type = "builtin"
+version = "1.0.0"
+description = "Harper - A practical and solution-oriented persona"
+
+[agent.metadata]
+telemetry_id = "zed"
+

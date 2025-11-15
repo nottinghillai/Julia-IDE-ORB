@@ -1,0 +1,10 @@
+[agent]
+id = "seal"
+name = "Seal"
+type = "builtin"
+version = "1.0.0"
+description = "Seal - A playful and lighthearted persona"
+
+[agent.metadata]
+telemetry_id = "zed"
+

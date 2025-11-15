@@ -1,0 +1,10 @@
+[agent]
+id = "jess"
+name = "Jess"
+type = "builtin"
+version = "1.0.0"
+description = "Jess - A friendly and approachable persona"
+
+[agent.metadata]
+telemetry_id = "zed"
+

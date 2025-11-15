@@ -1,0 +1,11 @@
+[agent]
+id = "codex"
+name = "Codex"
+type = "builtin"
+version = "1.0.0"
+description = "OpenAI Codex agent"
+
+[agent.metadata]
+icon = "ai-openai"
+telemetry_id = "codex"
+

@@ -1,0 +1,44 @@
+[package]
+name = "agent_memory"
+version = "0.1.0"
+edition.workspace = true
+publish.workspace = true
+license = "GPL-3.0-or-later"
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+chrono = { version = "0.4", features = ["serde"] }
+sha2 = "0.10"
+hex = "0.4"
+async-trait = "0.1"
+thiserror = "1.0"
+regex = "1.10"
+gpui = { workspace = true }
+sqlez = { workspace = true }
+indoc = "1.0"
+parking_lot = "0.12"
+tokio = { version = "1.0", features = ["sync"] }
+paths = { workspace = true }
+futures = "0.3"
+log = "0.4"
+
+# Optional dependencies for BGE model download
+http_client = { workspace = true, optional = true }
+fs = { workspace = true, optional = true }
+
+# Embedding generation dependencies
+candle-core = { version = "0.9.1", git = "https://github.com/zed-industries/candle", branch = "9.1-patched", optional = true }
+candle-transformers = { version = "0.9.1", git = "https://github.com/zed-industries/candle", branch = "9.1-patched", optional = true }
+candle-nn = { version = "0.9.1", git = "https://github.com/zed-industries/candle", branch = "9.1-patched", optional = true }
+tokenizers = { version = "0.19", optional = true }
+safetensors = { version = "0.4", optional = true }
+
+[features]
+default = []
+embeddings = ["candle-core", "candle-transformers", "candle-nn", "tokenizers", "safetensors", "http_client", "fs"]
+

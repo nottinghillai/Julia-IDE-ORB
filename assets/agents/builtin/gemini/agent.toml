@@ -1,0 +1,11 @@
+[agent]
+id = "gemini"
+name = "Gemini CLI"
+type = "builtin"
+version = "1.0.0"
+description = "Google Gemini command-line agent"
+
+[agent.metadata]
+icon = "ai-gemini"
+telemetry_id = "gemini-cli"
+
