@@ -10,7 +10,7 @@
 
 \title{Zed's Context Management Architecture: A Transparent Text-First Approach to LLM Context}
 \author{Research Paper}
-\date{\today}
+\date{November 17, 2025}
 
 \begin{document}
 
@@ -18,24 +18,36 @@
 
 \section{Introduction}
 
-Unlike many AI-powered code editors that use hidden embedding systems and vector databases, Zed takes a radically transparent, text-first approach to context management. The language model sees exactly what the user sees in the Agent Panel—there are no opaque vector stores or secret RAG layers. This paper examines how Zed builds, manages, and delivers context to language models through its text-thread architecture, explicit context injection mechanisms, and tool-based automatic context gathering.
+Unlike many AI-powered code editors that use hidden embedding systems and vector databases, Zed takes a radically transparent, text-first approach to context management. The language model sees exactly what the user sees in the Agent Panel or Text Threads—there are no opaque vector stores or secret RAG layers. This paper examines how Zed builds, manages, and delivers context to language models through its text-thread architecture, explicit context injection mechanisms, and observable automatic context gathering via tools.
 
 \section{The Text-First Philosophy}
 
-Zed's core principle is transparency: everything the LLM receives is visible in the Agent Panel. The context is built from explicit text blocks that users can see, edit, and control. There is no hidden embedding layer that automatically indexes the entire codebase.
+Zed's core principle is transparency: everything the LLM receives is visible in the Agent Panel or Text Threads. The context is built from explicit text blocks that users can see, edit, and control. There is no hidden embedding layer that automatically indexes the entire codebase.
 
 \begin{itemize}
     \item \textbf{Text Threads}: The conversation is stored as editable text blocks (System, You, Assistant)
-    \item \textbf{Explicit Context}: All context comes from manual inclusion or tool calls
+    \item \textbf{Explicit Context}: All context comes from manual inclusion or observable tool calls
     \item \textbf{No Hidden Memory}: The prompt is the thread—there is no invisible history
     \item \textbf{Editable History}: Users can rewrite any part of the conversation before resending
+    \item \textbf{Automatic but Observable}: Agent-driven context gathering is visible, not hidden
 \end{itemize}
 
 This approach gives users complete control and visibility over what context the model receives, making it easier to debug, optimize, and understand model behavior.
 
 \section{Thread-Based Context Architecture}
 
-Zed's context management centers around the concept of a "text thread"—a specialized document that contains the entire conversation history.
+Zed's context management centers around two distinct thread types, each serving different purposes.
+
+\subsection{Text Threads vs Agent Panel}
+
+Zed provides two thread interfaces with different capabilities:
+
+\begin{itemize}
+    \item \textbf{Text Threads}: Editor-like, fully editable conversation documents. Support slash commands but have no tool calls or agentic behavior—they're "just chat" for simple Q\&A and file inspection workflows.
+    \item \textbf{Agent Panel Threads}: Optimized for agentic workflows with @-mentions, tool calls, profiles, MCP integration, external agents, token meters, and summarization. This is where automatic context gathering and code editing happen.
+\end{itemize}
+
+Both use the same underlying text-thread architecture (editable System/You/Assistant blocks), but Agent Panel threads add the tool-calling layer that enables autonomous codebase traversal.
 
 \begin{figure}[htbp]
 \centering
@@ -70,11 +82,26 @@ When a user sends a message, Zed converts these text blocks into a standard chat
 
 \section{Building Context: Manual Injection Methods}
 
-Zed provides several explicit ways to inject context into a thread. All of these methods result in literal text being inserted into the conversation.
+Zed provides explicit ways to inject context into threads. All methods result in literal text being inserted into the conversation.
 
-\subsection{Slash Commands}
+\subsection{@-Mentions (Agent Panel Primary)}
 
-Slash commands are the primary mechanism for adding context. When executed, they resolve once and paste their results directly into the thread as text.
+In the Agent Panel, @-mentions are the primary mechanism for adding context:
+
+\begin{itemize}
+    \item @files – Mention specific files
+    \item @directories – Mention entire directories
+    \item @symbols – Mention code symbols
+    \item @threads – Reference previous conversations
+    \item @rules – Reference saved rule files
+    \item Selection – Add current selection via @ menu
+\end{itemize}
+
+Mentions expand into tagged \texttt{<context>} blocks when building the request, clearly labeled so the LLM knows what was attached.
+
+\subsection{Slash Commands (Text Threads \& Extensions)}
+
+Slash commands are especially important in Text Threads and can be extended by extensions or external agents:
 
 \begin{itemize}
     \item \texttt{/file <path>} – Inserts file contents or directory tree
@@ -88,21 +115,9 @@ Slash commands are the primary mechanism for adding context. When executed, they
     \item \texttt{/fetch <url>} – Fetches content from HTTP endpoint
 \end{itemize}
 
+Extensions can provide custom slash commands (e.g., MCP servers, external agents like Claude Code). Slash commands are supported in rules files when used with Text Threads, but @-mentions are not supported inside rules files.
+
 Important: Folds in the UI are just visual—the model still sees all the text. Token counts include folded content.
-
-\subsection{@-Mentions}
-
-The Agent Panel supports @-mentions for adding context:
-
-\begin{itemize}
-    \item @files – Mention specific files
-    \item @directories – Mention entire directories
-    \item @symbols – Mention code symbols
-    \item @threads – Reference previous conversations
-    \item @rules – Reference saved rule files
-\end{itemize}
-
-Mentions are resolved when building the final request, similar to slash commands. They expand into tagged sections within a \texttt{<context>} block, clearly labeled so the LLM knows what was attached by the user.
 
 \begin{figure}[htbp]
 \centering
@@ -151,13 +166,16 @@ Zed automatically scans project directories for rule files matching patterns lik
     \item \texttt{AGENT*.md}, \texttt{CLAUDE.md}, \texttt{GEMINI.md}
 \end{itemize}
 
-These rules are loaded and injected into the system prompt. Additionally, the system prompt includes:
+\subsubsection{Rule Precedence and Limitations}
+
+Zed uses only the first matching project rules file in a priority list (first match wins). Rules are project-level only—there's no built-in per-directory or per-file granularity. Rules Library entries don't apply automatically; you must explicitly @-mention them (\texttt{@rules}) in the Agent Panel.
+
+Additionally, the system prompt includes:
 \begin{itemize}
     \item Fixed instructions (communication style, tool usage rules)
     \item List of visible worktree roots
     \item Operating system, architecture, and shell information
     \item Model name and capabilities
-    \item User's custom rules from the Rules Library
 \end{itemize}
 
 \begin{figure}[htbp]
@@ -189,7 +207,7 @@ These rules are loaded and injected into the system prompt. Additionally, the sy
 
 \section{Automatic Context via Tools}
 
-While manual context injection gives users control, Zed's built-in agent can also automatically gather context through tool calls.
+While manual context injection gives users control, Zed's built-in agent can automatically gather context through tool calls. This is automatic but observable: the agent chooses which tools to call and which files to read, but all tool calls and their outputs appear as visible messages in the thread.
 
 \subsection{Built-in Tools}
 
@@ -202,7 +220,7 @@ Zed's agent has access to tools that allow it to:
     \item List directories
 \end{itemize}
 
-When the agent calls a tool, the tool's output is added as a context message in the conversation. The agent can see these results and use them to generate its response.
+When the agent calls a tool, the tool's output is added as a context message in the conversation. The agent can see these results and use them to generate its response. This automatic traversal is transparent—unlike hidden embedding systems, you see every file read and every tool call.
 
 \subsection{Profiles}
 
@@ -215,11 +233,11 @@ Zed provides different profiles (Write, Ask, Minimal) that control which tools a
 
 Users can see which tools are being used during a response in the Agent Panel UI.
 
-\section{External Context via MCP}
+\section{External Context: MCP and External Agents}
 
-The Model Context Protocol (MCP) allows Zed to integrate with external context servers that provide additional data sources.
+Zed integrates with external systems through two protocols: MCP (for data into Zed) and ACP (for routing context to external agents).
 
-\subsection{How MCP Works}
+\subsection{Model Context Protocol (MCP)}
 
 MCP servers expose external data such as:
 \begin{itemize}
@@ -236,6 +254,19 @@ When a user invokes an MCP command:
     \item The server returns text
     \item Zed pastes that text into the thread
 \end{enumerate}
+
+\subsection{External Agents via ACP}
+
+Zed supports external agents (Claude Code, Gemini CLI, Codex) via the Agent Client Protocol (ACP). When using external agents:
+
+\begin{itemize}
+    \item Zed still provides context via @-mentions and files, but forwards this to the external process via ACP
+    \item Some features may be limited: editing past messages, resuming history, checkpointing
+    \item Slash commands may behave differently or be partially supported
+    \item The same text-first, explicit context is repacked and forwarded over ACP
+\end{itemize}
+
+This means "online models" can be either Zed-hosted (via Zed's agent) or external CLI tools (via ACP) with their own context handling.
 
 \begin{figure}[htbp]
 \centering
@@ -278,11 +309,13 @@ Threads are stored persistently:
     \item Previous threads can be @-mentioned to pull their content into new conversations
 \end{itemize}
 
-Storage format: Threads are serialized as JSON or zstd-compressed JSON in \texttt{threads/threads.db}. There is no vector database or embedding index.
+Zed persists threads on disk (e.g., in a local database) so they can be reopened from history. The exact storage format is an implementation detail of the open-source codebase. There is no vector database or embedding index.
 
 \subsection{Token Pressure and Summarization}
 
-Zed tracks token usage and shows a meter in the UI. When approaching the model's context limit:
+Zed tracks token usage and shows a meter in the UI. Different models have very different context windows (e.g., 128k vs 32k), which affects how aggressive users must be about summarization. Zed recommends using purpose-based Agent threads (new thread per task) as a context-management strategy.
+
+When approaching the model's context limit:
 
 \begin{enumerate}
     \item Zed suggests starting a new thread
@@ -371,40 +404,59 @@ The context building process is identical regardless of whether the model is onl
     \item \textbf{Online (hosted)}: Same text-thread pipeline, full tool support
     \item \textbf{Offline (Ollama/LM Studio)}: Same text-thread pipeline, tools work if model supports them
     \item \textbf{Offline (no tools)}: Same text-thread pipeline, but only explicit context (no automatic tool calls)
+    \item \textbf{External agents (ACP)}: Context forwarded via ACP, may have different capabilities
 \end{itemize}
 
 The difference is in transport and tool capabilities, not in how context is built or stored.
 
-\section{What Zed Does Not Have}
+\section{Security and Privacy of Context}
 
-It's important to understand what Zed explicitly does not include:
+The text-first approach makes it easier to audit what data leaves your machine:
 
 \begin{itemize}
-    \item \textbf{No built-in vector store}: Core Zed does not maintain an embedding index of the codebase
-    \item \textbf{No automatic RAG}: There's no hidden retrieval-augmented generation layer
-    \item \textbf{No opaque memory}: Everything the LLM sees is visible in the thread
-    \item \textbf{No secret context}: No background processes that silently add context
+    \item \textbf{What's sent}: Everything in the thread, attached files, rules, and tool outputs included in the request
+    \item \textbf{Hosted models}: Data sent to OpenAI, Anthropic, etc. (their privacy policies apply)
+    \item \textbf{Self-hosted}: Data stays local (Ollama, LM Studio)
+    \item \textbf{MCP servers}: Run as separate processes and may log/store what they receive—they're not automatically trusted
+    \item \textbf{External agents}: Forward context via ACP; their privacy policies apply
 \end{itemize}
 
-If you need vector search or semantic retrieval, you must:
-\begin{itemize}
-    \item Use an MCP server that implements it (and returns text to Zed)
-    \item Build a custom Agent Server that does embeddings internally
-    \item Implement it in an external service that Zed calls via MCP
-\end{itemize}
+Since all context is visible in the thread, users can review exactly what will be sent before making a request.
 
-\section{Advantages of the Text-First Approach}
+\section{Text-First vs RAG-First: Tradeoffs}
 
-Zed's transparent, text-first context management offers several benefits:
+Zed explicitly does not include built-in vector stores or automatic RAG. This design choice has clear tradeoffs:
+
+\subsection{Advantages}
 
 \begin{itemize}
-    \item \textbf{Debuggability}: Users can see exactly what context the model received
-    \item \textbf{Control}: Users decide what context to include, when, and how
+    \item \textbf{Debuggability}: See exactly what context the model received
+    \item \textbf{Control}: Decide what context to include, when, and how
     \item \textbf{Predictability}: No hidden behavior that's hard to reason about
-    \item \textbf{Editability}: History can be rewritten before resending
+    \item \textbf{Editability}: Rewrite history before resending
     \item \textbf{Composability}: Context sources (rules, files, tools, MCP) are clearly separated
-    \item \textbf{Token transparency}: Users can see token usage and optimize accordingly
+    \item \textbf{Token transparency}: See token usage and optimize accordingly
 \end{itemize}
+
+\subsection{Costs}
+
+\begin{itemize}
+    \item \textbf{Manual curation}: Users (or tools) must curate context—easier to miss important files in huge monorepos
+    \item \textbf{Token usage}: Can explode if people @directory everything without filtering
+    \item \textbf{No automatic semantic search}: Must bring MCP/external RAG for semantic retrieval across millions of lines
+\end{itemize}
+
+\subsection{Hybrid Approaches}
+
+If you need vector search or semantic retrieval:
+\begin{itemize}
+    \item Use an MCP server that implements it (returns compact textual digest)
+    \item Build a custom Agent Server that does embeddings internally
+    \item Use BMAD-style documentation methods that convert semantic structure into textual knowledge
+\end{itemize}
+
+This keeps RAG opt-in and transparent, rather than hidden in the core system.
+
 
 \section{Conclusion}
 
@@ -412,14 +464,15 @@ Zed's context management architecture demonstrates that sophisticated AI assista
 
 The text-first approach means:
 \begin{itemize}
-    \item Context is built from explicit text inclusion
-    \item Everything is visible in the Agent Panel
+    \item Context is built from explicit text inclusion (manual or tool-driven)
+    \item Everything is visible in the Agent Panel or Text Threads
     \item Memory is stored as editable text threads
     \item Long-term context uses summarization, not vectors
     \item External embeddings (via MCP) are opt-in and transparent
+    \item Automatic context gathering is observable, not hidden
 \end{itemize}
 
-This architecture provides a solid foundation for building reliable, debuggable AI-powered development tools while maintaining user control and system transparency.
+This architecture provides a solid foundation for building reliable, debuggable AI-powered development tools while maintaining user control and system transparency. The tradeoff is that users must be more deliberate about context curation, but gain complete visibility and control over what the model sees.
 
 \end{document}
 

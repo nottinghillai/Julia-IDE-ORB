@@ -70,6 +70,15 @@ impl AgentProfile {
         let default_model = base_profile
             .as_ref()
             .and_then(|profile| profile.default_model.clone());
+        let web_search_provider = base_profile
+            .as_ref()
+            .and_then(|profile| profile.web_search_provider.clone());
+        let web_search_max_results = base_profile
+            .as_ref()
+            .and_then(|profile| profile.web_search_max_results);
+        let web_search_snippet_length = base_profile
+            .as_ref()
+            .and_then(|profile| profile.web_search_snippet_length);
 
         let profile_settings = AgentProfileSettings {
             name: name.into(),
@@ -77,6 +86,9 @@ impl AgentProfile {
             enable_all_context_servers,
             context_servers,
             default_model,
+            web_search_provider,
+            web_search_max_results,
+            web_search_snippet_length,
         };
 
         update_settings_file(fs, cx, {
@@ -109,6 +121,12 @@ pub struct AgentProfileSettings {
     pub context_servers: IndexMap<Arc<str>, ContextServerPreset>,
     /// Default language model to apply when this profile becomes active.
     pub default_model: Option<LanguageModelSelection>,
+    /// Optional web search provider override for this profile.
+    pub web_search_provider: Option<SharedString>,
+    /// Optional web search max results override for this profile.
+    pub web_search_max_results: Option<usize>,
+    /// Optional web search snippet length override for this profile.
+    pub web_search_snippet_length: Option<usize>,
 }
 
 impl AgentProfileSettings {
@@ -158,6 +176,12 @@ impl AgentProfileSettings {
                     })
                     .collect(),
                 default_model: self.default_model.clone(),
+                web_search_provider: self
+                    .web_search_provider
+                    .as_ref()
+                    .map(|s| Arc::<str>::from(s.as_ref())),
+                web_search_max_results: self.web_search_max_results,
+                web_search_snippet_length: self.web_search_snippet_length,
             },
         );
 
@@ -173,6 +197,9 @@ impl From<AgentProfileContent> for AgentProfileSettings {
             enable_all_context_servers,
             context_servers,
             default_model,
+            web_search_provider,
+            web_search_max_results,
+            web_search_snippet_length,
         } = content;
 
         Self {
@@ -184,6 +211,9 @@ impl From<AgentProfileContent> for AgentProfileSettings {
                 .map(|(server_id, preset)| (server_id, preset.into()))
                 .collect(),
             default_model,
+            web_search_provider: web_search_provider.map(|s| s.into()),
+            web_search_max_results,
+            web_search_snippet_length,
         }
     }
 }

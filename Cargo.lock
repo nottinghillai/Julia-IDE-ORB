@@ -210,6 +210,7 @@ dependencies = [
  "uuid",
  "watch",
  "web_search",
+ "web_search_providers",
  "worktree",
  "zed_env_vars",
  "zlog",
@@ -19901,16 +19902,21 @@ dependencies = [
 name = "web_search_providers"
 version = "0.1.0"
 dependencies = [
+ "agent_settings",
  "anyhow",
  "client",
  "cloud_llm_client",
+ "credentials_provider",
  "futures 0.3.31",
  "gpui",
  "http_client",
  "language_model",
+ "reqwest_client",
  "serde",
  "serde_json",
+ "settings",
  "web_search",
+ "zed_env_vars",
 ]
 
 [[package]]

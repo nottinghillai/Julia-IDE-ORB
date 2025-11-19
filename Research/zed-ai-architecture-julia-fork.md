@@ -176,3 +176,5 @@ The key insight is that Zed's architecture separates concerns effectively: the e
 - Model Context Protocol: Standard for agent-editor communication
 - Agent Context Protocol: Extension protocol for external agents
 
+
+

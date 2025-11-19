@@ -3,7 +3,7 @@ mod agent_profile;
 use std::sync::Arc;
 
 use collections::IndexMap;
-use gpui::{App, Pixels, px};
+use gpui::{App, Pixels, SharedString, px};
 use language_model::LanguageModel;
 use project::DisableAiSettings;
 use schemars::JsonSchema;
@@ -45,6 +45,9 @@ pub struct AgentSettings {
     pub expand_terminal_card: bool,
     pub use_modifier_to_send: bool,
     pub message_editor_min_lines: usize,
+    pub default_web_search_provider: Option<SharedString>,
+    pub default_web_search_max_results: usize,
+    pub default_web_search_snippet_length: usize,
 }
 
 impl AgentSettings {
@@ -177,6 +180,11 @@ impl Settings for AgentSettings {
             expand_terminal_card: agent.expand_terminal_card.unwrap(),
             use_modifier_to_send: agent.use_modifier_to_send.unwrap(),
             message_editor_min_lines: agent.message_editor_min_lines.unwrap(),
+            default_web_search_provider: agent
+                .default_web_search_provider
+                .map(|s| s.into()),
+            default_web_search_max_results: agent.default_web_search_max_results.unwrap_or(5),
+            default_web_search_snippet_length: agent.default_web_search_snippet_length.unwrap_or(240),
         }
     }
 }

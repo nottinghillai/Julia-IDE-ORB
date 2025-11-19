@@ -816,6 +816,7 @@ impl Thread {
                 tool_use.id.clone(),
                 stream.clone(),
                 Some(self.project.read(cx).fs().clone()),
+                Some(self.profile_id.clone()),
             );
             tool.replay(tool_use.input.clone(), output, tool_event_stream, cx)
                 .log_err();
@@ -1634,7 +1635,12 @@ impl Thread {
 
         let fs = self.project.read(cx).fs().clone();
         let tool_event_stream =
-            ToolCallEventStream::new(tool_use.id.clone(), event_stream.clone(), Some(fs));
+            ToolCallEventStream::new(
+                tool_use.id.clone(),
+                event_stream.clone(),
+                Some(fs),
+                Some(self.profile_id.clone()),
+            );
         tool_event_stream.update_fields(acp::ToolCallUpdateFields {
             status: Some(acp::ToolCallStatus::InProgress),
             ..Default::default()
@@ -2508,6 +2514,7 @@ pub struct ToolCallEventStream {
     tool_use_id: LanguageModelToolUseId,
     stream: ThreadEventStream,
     fs: Option<Arc<dyn Fs>>,
+    profile_id: Option<AgentProfileId>,
 }
 
 impl ToolCallEventStream {
@@ -2515,7 +2522,8 @@ impl ToolCallEventStream {
     pub fn test() -> (Self, ToolCallEventStreamReceiver) {
         let (events_tx, events_rx) = mpsc::unbounded::<Result<ThreadEvent>>();
 
-        let stream = ToolCallEventStream::new("test_id".into(), ThreadEventStream(events_tx), None);
+        let stream =
+            ToolCallEventStream::new("test_id".into(), ThreadEventStream(events_tx), None, None);
 
         (stream, ToolCallEventStreamReceiver(events_rx))
     }
@@ -2524,11 +2532,13 @@ impl ToolCallEventStream {
         tool_use_id: LanguageModelToolUseId,
         stream: ThreadEventStream,
         fs: Option<Arc<dyn Fs>>,
+        profile_id: Option<AgentProfileId>,
     ) -> Self {
         Self {
             tool_use_id,
             stream,
             fs,
+            profile_id,
         }
     }
 
@@ -2548,6 +2558,10 @@ impl ToolCallEventStream {
                 .into(),
             )))
             .ok();
+    }
+
+    pub fn profile_id(&self) -> Option<&AgentProfileId> {
+        self.profile_id.as_ref()
     }
 
     pub fn authorize(&self, title: impl Into<String>, cx: &mut App) -> Task<Result<()>> {

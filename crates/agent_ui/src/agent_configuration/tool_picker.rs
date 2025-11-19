@@ -315,6 +315,12 @@ impl PickerDelegate for ToolPickerDelegate {
                             })
                             .collect(),
                         default_model: default_profile.default_model.clone(),
+                        web_search_provider: default_profile
+                            .web_search_provider
+                            .as_ref()
+                            .map(|s| Arc::<str>::from(s.as_ref())),
+                        web_search_max_results: default_profile.web_search_max_results,
+                        web_search_snippet_length: default_profile.web_search_snippet_length,
                     });
 
                 if let Some(server_id) = server_id {

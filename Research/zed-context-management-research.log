@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.3.8)  15 NOV 2025 13:27
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.3.8)  17 NOV 2025 12:27
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -795,50 +795,48 @@ e
 
 {/usr/local/texlive/2025/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/usr/loc
 al/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}]
-Overfull \hbox (0.58138pt too wide) in paragraph at lines 120--120
+
+[2]
+Overfull \hbox (0.58138pt too wide) in paragraph at lines 135--135
  [][]\OT1/cmtt/m/n/10.95 /selection 
  []
 
 
 
-[2]
-
 [3]
 
 [4]
-Overfull \hbox (30.65111pt too wide) in paragraph at lines 281--282
-[]\OT1/cmr/m/n/10.95 Storage for-mat: Threads are se-ri-al-ized as JSON or zstd
--compressed JSON in \OT1/cmtt/m/n/10.95 threads/threads.db\OT1/cmr/m/n/10.95 .
- []
 
+[5]
 
-Overfull \hbox (42.68742pt too wide) in paragraph at lines 340--340
+[6]
+Overfull \hbox (42.68742pt too wide) in paragraph at lines 373--373
  [][]\OT1/cmr/m/n/10.95 LanguageModelRequest 
  []
 
 
 
-[5]
+[7]
 
-[6]
+[8]
 
-[7] (./zed-context-management-research.aux)
+[9] (./zed-context-management-research.aux)
  ***********
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2025-01-18>
  ***********
 Package rerunfilecheck Info: File `zed-context-management-research.out' has not
  changed.
-(rerunfilecheck)             Checksum: D3310745F71BE5265760344A2392C3CB;3578.
+(rerunfilecheck)             Checksum: 8F0207885151EFB46B9F1B7B45EDAF77;5028.
  ) 
 Here is how much of TeX's memory you used:
- 24678 strings out of 473190
- 486704 string characters out of 5715801
- 889335 words of memory out of 5000000
- 47500 multiletter control sequences out of 15000+600000
+ 24692 strings out of 473190
+ 486912 string characters out of 5715801
+ 885360 words of memory out of 5000000
+ 47506 multiletter control sequences out of 15000+600000
  564575 words of font info for 56 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 102i,8n,107p,560b,755s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 102i,8n,107p,586b,755s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb
 ></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb>
 </usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></
@@ -847,10 +845,10 @@ r/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/
 local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/loc
 al/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/loca
 l/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfrm1095.pfb>
-Output written on zed-context-management-research.pdf (7 pages, 143677 bytes).
+Output written on zed-context-management-research.pdf (9 pages, 150205 bytes).
 PDF statistics:
- 198 PDF objects out of 1000 (max. 8388607)
- 171 compressed objects within 2 object streams
- 48 named destinations out of 1000 (max. 500000)
- 181 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 233 PDF objects out of 1000 (max. 8388607)
+ 203 compressed objects within 3 object streams
+ 56 named destinations out of 1000 (max. 500000)
+ 229 words of extra memory for PDF output out of 10000 (max. 10000000)
 

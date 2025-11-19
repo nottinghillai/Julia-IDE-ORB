@@ -41,6 +41,18 @@ use util::path;
 mod test_tools;
 use test_tools::*;
 
+#[cfg(test)]
+mod web_search_tool_tests;
+
+#[cfg(test)]
+mod web_search_e2e_tests;
+
+#[cfg(test)]
+mod web_search_prompt_tests;
+
+#[cfg(test)]
+mod web_search_real_api_tests;
+
 #[gpui::test]
 async fn test_echo(cx: &mut TestAppContext) {
     let ThreadTest { model, thread, .. } = setup(cx, TestModel::Fake).await;

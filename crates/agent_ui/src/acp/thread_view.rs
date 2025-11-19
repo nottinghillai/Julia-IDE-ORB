@@ -5969,17 +5969,12 @@ fn loading_contents_spinner(size: IconSize) -> AnyElement {
 }
 
 fn sanitize_agent_name(name: SharedString) -> SharedString {
-    if name.contains("Zed") {
-        name.replace("Zed", "Julia").into()
-    } else {
-        name
-    }
+    // Preserve the agent's actual name (personas, custom names, etc.).
+    name
 }
 
 fn placeholder_text(agent_name: &str, has_commands: bool) -> String {
-    if agent_name == "Julia Agent" {
-        format!("Message the {} — @ to include context", agent_name)
-    } else if has_commands {
+    if has_commands {
         format!(
             "Message {} — @ to include context, / for commands",
             agent_name

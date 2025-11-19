@@ -107,6 +107,12 @@ pub struct AgentSettingsContent {
     ///
     /// Default: 4
     pub message_editor_min_lines: Option<usize>,
+    /// Default web search provider to use when none is specified by a profile.
+    pub default_web_search_provider: Option<Arc<str>>,
+    /// Default max results for web search when not overridden by a profile.
+    pub default_web_search_max_results: Option<usize>,
+    /// Default snippet length for web search when not overridden by a profile.
+    pub default_web_search_snippet_length: Option<usize>,
 }
 
 impl AgentSettingsContent {
@@ -178,6 +184,12 @@ pub struct AgentProfileContent {
     pub context_servers: IndexMap<Arc<str>, ContextServerPresetContent>,
     /// The default language model selected when using this profile.
     pub default_model: Option<LanguageModelSelection>,
+    /// Optional web search provider override for this profile.
+    pub web_search_provider: Option<Arc<str>>,
+    /// Optional web search max results override for this profile.
+    pub web_search_max_results: Option<usize>,
+    /// Optional web search snippet length override for this profile.
+    pub web_search_snippet_length: Option<usize>,
 }
 
 #[skip_serializing_none]
